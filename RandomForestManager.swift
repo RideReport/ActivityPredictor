@@ -13,11 +13,11 @@ class RandomForestManager {
     var classLables: [Int32]!
     var classCount = 0
     
-    init(sampleSize: Int) {
+    init(sampleSize: Int, samplingFrequency: Int) {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("forest.cv", ofType: nil)
         let cpath = path?.cStringUsingEncoding(NSUTF8StringEncoding)
 
-        _ptr = createRandomForestManager(Int32(sampleSize), UnsafeMutablePointer(cpath!))
+        _ptr = createRandomForestManager(Int32(sampleSize), Int32(samplingFrequency), UnsafeMutablePointer(cpath!))
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
