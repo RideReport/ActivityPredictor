@@ -76,13 +76,13 @@ void autocorrelation(float *input, int inputSize, float *output)
 
 float dominantPower(float *input, int inputSize)
 {
-    float dominantFrequency = 0;
+    float dominantPower = 0;
     for (int i=1; i<=inputSize/2; i+=1) {
         float value = input[i];
-        if (value > dominantFrequency) {
-            dominantFrequency = value;
+        if (value > dominantPower) {
+            dominantPower = value;
         }
     }
     
-    return dominantFrequency;
+    return dominantPower;
 }
