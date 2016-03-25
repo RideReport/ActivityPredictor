@@ -30,7 +30,7 @@ class RandomForestManager {
     func classifyMagnitudeVector(accelerometerVector: [Float], gyroVector: [Float])->(sampleClass: Int, confidence: Float)
     {
         let confidences = [Float](count:self.classCount, repeatedValue:0.0)
-        randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelerometerVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), 4)
+        randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelerometerVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
         
         var highScore: Float = 0
         var highScoreIndex = 0
