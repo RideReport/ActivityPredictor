@@ -9,10 +9,20 @@
 #include "FFTManager.h"
 #include<stdio.h>
 #include <Accelerate/Accelerate.h>
+#include <math.h>
 
 struct FFTManager {
     FFTSetup fftWeights;
+    float* multipliers;
 };
+
+void setupHammingWindow(float *values, int N) {
+    // The vdsp hamming window has the wrong divisor in the cosine argument, so
+    // we have to make our own hamming window.
+    for (int i = 0; i < N; ++i) {
+        values[i] = 0.54f - 0.46f * cosf(2.f*M_PI*i/(N-1));
+    }
+}
 
 FFTManager *createFFTManager(int sampleSize)
 {
@@ -21,6 +31,8 @@ FFTManager *createFFTManager(int sampleSize)
     struct FFTManager *f;
     f = (struct FFTManager*) malloc(sizeof(struct FFTManager));
     f->fftWeights = vDSP_create_fftsetup(vDSP_Length(log2f(sampleSize)), FFT_RADIX2);
+    f->multipliers = (float*) malloc(sizeof(float) * sampleSize);
+    setupHammingWindow(f->multipliers, sampleSize);
     
     return f;
 }
@@ -33,11 +45,8 @@ void deleteFFTManager(FFTManager *fftManager)
 
 void fft(FFTManager *manager, float * input, int inputSize, float *output)
 {
-    // apply a hamming window to the input
-    float *hammingWindow = new float[inputSize];
-    vDSP_hamm_window(hammingWindow, inputSize, 0);
     float *hammedInput = new float[inputSize]();
-    vDSP_vmul(input, 1, hammingWindow, 1, hammedInput, 1, inputSize);
+    vDSP_vmul(input, 1, manager->multipliers, 1, hammedInput, 1, inputSize);
     
     // pack the input samples in preparation for FFT
     float *zeroArray = new float[inputSize]();
@@ -47,8 +56,8 @@ void fft(FFTManager *manager, float * input, int inputSize, float *output)
     vDSP_fft_zip(manager->fftWeights, &splitComplex, 1, log2f(inputSize), FFT_FORWARD);
     vDSP_zvmags(&splitComplex, 1, output, 1, inputSize);
     
-    delete[](zeroArray);
-    delete[](hammingWindow);
+    delete[] zeroArray;
+    delete[] hammedInput;
 }
 
 void autocorrelation(float *input, int inputSize, float *output)
