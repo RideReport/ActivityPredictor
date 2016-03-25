@@ -27,21 +27,17 @@ class RandomForestManager {
         deleteRandomForestManager(_ptr)
     }
     
-    func classifyMagnitudeVector(accelerometerVector: [Float], gyroVector: [Float])->(sampleClass: Int, confidence: Float)
+    func classifyMagnitudeVector(accelerometerVector: [Float], gyroVector: [Float])->([Int: Float])
     {
         let confidences = [Float](count:self.classCount, repeatedValue:0.0)
         randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelerometerVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
         
-        var highScore: Float = 0
-        var highScoreIndex = 0
-        
+        var classConfidences: [Int: Float] = [:]
+    
         for (i, score) in confidences.enumerate() {
-            if score > highScore {
-                highScore = score
-                highScoreIndex = i
-            }
+            classConfidences[Int(classLables[i])] = score
         }
         
-        return (Int(classLables[highScoreIndex]), highScore)
+        return classConfidences
     }
 }
