@@ -10,13 +10,15 @@
 #ifdef __APPLE__
 #include "FFTManager.h"
 #else
-#include "FFTManager_fftw.h"
+#include "FFTManager_opencv.h"
 #endif
+
 #include<stdio.h>
 #include <algorithm>
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml/ml.hpp>
 #include <vector>
+#include <cmath>
 
 #ifdef __APPLE__
 #define FFT_TYPE_NUMBER 0
