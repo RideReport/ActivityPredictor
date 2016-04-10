@@ -15,6 +15,7 @@ void setupHammingWindow(float *values, int N) {
 
 FFTManager* createFFTManager(int sampleSize) {
     FFTManager* _fft = (struct FFTManager*) malloc(sizeof(struct FFTManager));
+    _fft->N = sampleSize;
     _fft->multipliers = (float*) malloc(sizeof(float) * sampleSize);
     setupHammingWindow(_fft->multipliers, sampleSize);
 
