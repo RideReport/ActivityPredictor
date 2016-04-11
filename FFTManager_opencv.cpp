@@ -26,6 +26,11 @@ FFTManager* createFFTManager(int sampleSize) {
 }
 
 void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
+    if (inputSize != _fft->N) {
+        // throw?
+        return;
+    }
+
     for (int i = 0; i < _fft->N; ++i) {
         input[i] *= _fft->multipliers[i];
     }
