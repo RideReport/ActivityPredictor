@@ -2,6 +2,9 @@
 #include "FFTManager_opencv.h"
 #include <math.h>
 
+#include <opencv2/core/core.hpp>
+using namespace cv;
+
 struct FFTManager {
     unsigned int N;
     float* multipliers;
@@ -23,9 +26,23 @@ FFTManager* createFFTManager(int sampleSize) {
 }
 
 void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
-    // FIXME
+    for (int i = 0; i < _fft->N; ++i) {
+        input[i] *= _fft->multipliers[i];
+    }
+
+    Mat dftInput = Mat(inputSize, 1, CV_32F, input);
+    Mat dftOutput;
+    Mat splitComplex[] = { Mat(inputSize, 1, CV_32F), Mat(inputSize, 1, CV_32F) };
+
+    //Mat(inputSize, 1, CV_32F, output)
+    dft(dftInput, dftOutput, DFT_COMPLEX_OUTPUT);
+
+    // splitComplex[0] = Re(dftOutput), splitComplex[1] = Im(dftOutput)
+    split(dftOutput, splitComplex);
+
+    // Compute *squared* magnitudes == "power"
     for (int i = 0; i <= _fft->N/2; ++i) {
-        output[i] = 0.f;
+        output[i] = (splitComplex[0].at<float>(i) * splitComplex[0].at<float>(i)) + (splitComplex[1].at<float>(i) * splitComplex[1].at<float>(i));
     }
 }
 
