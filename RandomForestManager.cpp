@@ -13,7 +13,14 @@
 #include "FFTManager_opencv.h"
 #endif
 
-#include<stdio.h>
+#ifdef __ANDROID__
+#include <android/log.h>
+#define DEBUG(str) __android_log_print(ANDROID_LOG_VERBOSE, "RandomForestManager", (str))
+#else
+#include <stdio.h>
+#define DEBUG(STR) printf(str)
+#endif
+
 #include <algorithm>
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml/ml.hpp>
@@ -95,7 +102,7 @@ float trapezoidArea(vector<float>::iterator start, vector<float>::iterator end)
 float percentile(float *input, int length, float percentile)
 {
     std::vector<float> sortedInput(length);
-    
+
     // using default comparison (operator <):
     std::partial_sort_copy (input, input+length, sortedInput.begin(), sortedInput.end());
 
@@ -123,7 +130,7 @@ void prepFeatureVector(RandomForestManager *randomForestManager, float* features
     float fftIntegralBelow2_5hz = trapezoidArea(
         spectrum.begin() + 1, // exclude DC
         spectrum.begin() + randomForestManager->fftIndex_below2_5hz + 1); // include 2.5Hz component
-    
+
     float *fftOutput2 = new float[randomForestManager->sampleSize];
     fft(randomForestManager->fftManager, gyroscopeVector, randomForestManager->sampleSize, fftOutput2);
     float maxPower2 = dominantPower(fftOutput2, randomForestManager->sampleSize);
