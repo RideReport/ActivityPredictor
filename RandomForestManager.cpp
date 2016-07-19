@@ -10,9 +10,22 @@
 #ifdef __APPLE__
 #include "FFTManager.h"
 #else
+#ifdef __ANDROID__
+#include "FFTManager_opencv.h"
+#else
 #include "FFTManager_fftw.h"
 #endif
-#include<stdio.h>
+#endif
+
+#ifdef __ANDROID__
+#include <android/log.h>
+#include <cmath>
+#define DEBUG(str) __android_log_print(ANDROID_LOG_VERBOSE, "RandomForestManager", (str))
+#else
+#include <stdio.h>
+#define DEBUG(STR) printf(str)
+#endif
+
 #include <algorithm>
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml/ml.hpp>
