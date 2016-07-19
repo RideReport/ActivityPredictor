@@ -23,7 +23,6 @@
 #define DEBUG(str) __android_log_print(ANDROID_LOG_VERBOSE, "RandomForestManager", (str))
 #else
 #include <stdio.h>
-#define DEBUG(STR) printf(str)
 #endif
 
 #include <algorithm>
