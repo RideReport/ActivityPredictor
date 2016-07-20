@@ -57,7 +57,7 @@ struct RandomForestManager {
     cv::Ptr<cv::ml::RTrees> model;
 };
 
-RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile)
+RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile, bool isAcclereomterOnlyVersion)
 {
     assert(fmod(log2(sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
 
@@ -115,6 +115,36 @@ float percentile(float *input, int length, float percentile)
 }
 
 void prepFeatureVector(RandomForestManager *randomForestManager, float* features, float* accelerometerVector, float* gyroscopeVector) {
+	float *fftOutput2 = new float[randomForestManager->sampleSize];
+    fft(randomForestManager->fftManager, gyroscopeVector, randomForestManager->sampleSize, fftOutput2);
+    float maxPower2 = dominantPower(fftOutput2, randomForestManager->sampleSize);
+    vector<float> spectrum2 (fftOutput2, fftOutput2 + spectrumLength);
+    float fftIntegral2 = trapezoidArea(spectrum2.begin() + 1, spectrum2.end()); // skip DC (zero frequency) component
+
+    float fftIntegralBelow2to3_5Hz = trapezoidArea(spectrum2.begin() + randomForestManager->fftIndex_above2hz, spectrum2.begin() + randomForestManager->fftIndex_above3_5hz);
+
+    cv::Mat gyro = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, gyroscopeVector);
+    cv::Scalar gyroMean, gyroStdDev;
+    meanStdDev(gyro, gyroMean, gyroStdDev);
+
+    // adjacent_difference places the differences in indices [1, end)
+    std::adjacent_difference(gyroscopeVector, gyroscopeVector + randomForestManager->sampleSize, randomForestManager->differences->begin());
+    cv::Mat gyroDiff = cv::Mat(randomForestManager->sampleSize - 1, 1, CV_32F, randomForestManager->differences->data() + 1);
+    cv::Scalar gyroDiffMean, gyroDiffStdDev;
+    meanStdDev(gyroDiff, gyroDiffMean, gyroDiffStdDev);
+
+    features[13] = maxPower2;
+    features[14] = fftIntegral2;
+    features[15] = fftIntegralBelow2to3_5Hz;
+    features[16] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.25);
+    features[17] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.5);
+    features[18] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.75);
+    features[19] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.9);
+    features[20] = gyroDiffMean.val[0];
+    features[21] = gyroStdDev.val[0];
+}
+
+void prepFeatureVectorAccelerometerOnly(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
     cv::Mat mags = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, accelerometerVector);
 
     cv::Scalar meanMag,stddevMag;
@@ -133,24 +163,6 @@ void prepFeatureVector(RandomForestManager *randomForestManager, float* features
         spectrum.begin() + 1, // exclude DC
         spectrum.begin() + randomForestManager->fftIndex_below2_5hz + 1); // include 2.5Hz component
 
-    float *fftOutput2 = new float[randomForestManager->sampleSize];
-    fft(randomForestManager->fftManager, gyroscopeVector, randomForestManager->sampleSize, fftOutput2);
-    float maxPower2 = dominantPower(fftOutput2, randomForestManager->sampleSize);
-    vector<float> spectrum2 (fftOutput2, fftOutput2 + spectrumLength);
-    float fftIntegral2 = trapezoidArea(spectrum2.begin() + 1, spectrum2.end()); // skip DC (zero frequency) component
-
-    float fftIntegralBelow2to3_5Hz = trapezoidArea(spectrum2.begin() + randomForestManager->fftIndex_above2hz, spectrum2.begin() + randomForestManager->fftIndex_above3_5hz);
-
-    cv::Mat gyro = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, gyroscopeVector);
-    cv::Scalar gyroMean, gyroStdDev;
-    meanStdDev(gyro, gyroMean, gyroStdDev);
-
-    // adjacent_difference places the differences in indices [1, end)
-    std::adjacent_difference(gyroscopeVector, gyroscopeVector + randomForestManager->sampleSize, randomForestManager->differences->begin());
-    cv::Mat gyroDiff = cv::Mat(randomForestManager->sampleSize - 1, 1, CV_32F, randomForestManager->differences->data() + 1);
-    cv::Scalar gyroDiffMean, gyroDiffStdDev;
-    meanStdDev(gyroDiff, gyroDiffMean, gyroDiffStdDev);
-
     features[0] = max(mags);
     features[1] = (float)meanMag.val[0];
     features[2] = maxMean(mags, 5);
@@ -163,27 +175,39 @@ void prepFeatureVector(RandomForestManager *randomForestManager, float* features
     features[9] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.25);
     features[10] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.5);
     features[11] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.75);
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9);
-    features[13] = maxPower2;
-    features[14] = fftIntegral2;
-    features[15] = fftIntegralBelow2to3_5Hz;
-    features[16] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.25);
-    features[17] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.5);
-    features[18] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.75);
-    features[19] = percentile(gyroscopeVector, randomForestManager->sampleSize, 0.9);
-    features[20] = gyroDiffMean.val[0];
-    features[21] = gyroStdDev.val[0];
+    features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9)
+    
 }
 
 int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector)
 {
+    assert(randomForestManager->isAcclereomterOnlyVersion == false);
+	
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
     prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector, gyroscopeVector);
 
     return (int)randomForestManager->model->predict(features, cv::noArray(), cv::ml::DTrees::PREDICT_MAX_VOTE);
 }
 
+void randomForestClassificationConfidencesAccelerometerOnly(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes) {
+    assert(randomForestManager->isAcclereomterOnlyVersion == true);
+	
+    cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE_ACCELEROMETER_ONLY, CV_32F);
+
+    prepFeatureVectorAccelerometerOnly(randomForestManager, features.ptr<float>(), accelerometerVector);
+
+    cv::Mat results;
+
+    randomForestManager->model->predictProb(features, results, cv::ml::DTrees::PREDICT_CONFIDENCE);
+
+    for (int i = 0; i < n_classes; ++i) {
+        confidences[i] = results.at<float>(i);
+    }
+}
+
 void randomForestClassificationConfidences(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector, float *confidences, int n_classes) {
+    assert(randomForestManager->isAcclereomterOnlyVersion == false);
+	
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
 
     prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector, gyroscopeVector);

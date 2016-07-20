@@ -9,7 +9,7 @@
 import Foundation
 
 class RandomForestManager {
-    var _ptr: COpaquePointer
+    var _ptr: COpaquePointer!
     var classLables: [Int32]!
     var classCount = 0
     
@@ -25,14 +25,17 @@ class RandomForestManager {
     class func startup() {
         if (Static.sharedManager == nil) {
             Static.sharedManager = RandomForestManager()
+            dispatch_async(dispatch_get_main_queue()) {
+                Static.sharedManager?.startup()
+            }
         }
     }
     
-    init() {
+    func startup() {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("forest.cv", ofType: nil)
         let cpath = path?.cStringUsingEncoding(NSUTF8StringEncoding)
-
-        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!))
+        
+        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!), false)
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
