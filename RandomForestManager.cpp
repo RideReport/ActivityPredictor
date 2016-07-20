@@ -45,6 +45,7 @@ double kurtosis(cv::Mat mat);
 struct RandomForestManager {
     int sampleSize;
     int samplingRateHz;
+    bool isAcclereomterOnlyVersion;
     int fftIndex_above8hz;
     int fftIndex_below2_5hz;
     int fftIndex_above2hz;
@@ -64,6 +65,7 @@ RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateH
     RandomForestManager *r = new RandomForestManager;
     r->sampleSize = sampleSize;
     r->fftManager = createFFTManager(sampleSize);
+    r->isAcclereomterOnlyVersion = isAcclereomterOnlyVersion;
 
     r->model = cv::ml::RTrees::load<cv::ml::RTrees>(pathToModelFile);
 
@@ -115,6 +117,10 @@ float percentile(float *input, int length, float percentile)
 }
 
 void prepFeatureVector(RandomForestManager *randomForestManager, float* features, float* accelerometerVector, float* gyroscopeVector) {
+    prepFeatureVectorAccelerometerOnly(randomForestManager, features, accelerometerVector);
+
+    int spectrumLength = randomForestManager->sampleSize / 2; // exclude nyquist frequency
+
 	float *fftOutput2 = new float[randomForestManager->sampleSize];
     fft(randomForestManager->fftManager, gyroscopeVector, randomForestManager->sampleSize, fftOutput2);
     float maxPower2 = dominantPower(fftOutput2, randomForestManager->sampleSize);
@@ -175,8 +181,7 @@ void prepFeatureVectorAccelerometerOnly(RandomForestManager *randomForestManager
     features[9] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.25);
     features[10] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.5);
     features[11] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.75);
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9)
-    
+    features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9);
 }
 
 int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector)
