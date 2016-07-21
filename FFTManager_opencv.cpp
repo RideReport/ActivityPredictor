@@ -1,5 +1,5 @@
-#include <malloc.h>
-#include "FFTManager_opencv.h"
+#include <stdlib.h>
+#include "FFTManager.h"
 #include <math.h>
 
 #include <opencv2/core/core.hpp>

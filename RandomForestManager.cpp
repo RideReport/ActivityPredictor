@@ -22,6 +22,7 @@
 #endif
 
 #include <algorithm>
+#include <numeric>
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml/ml.hpp>
 #include <vector>
