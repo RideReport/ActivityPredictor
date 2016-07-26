@@ -7,11 +7,7 @@
 //
 
 #include "RandomForestManager.h"
-#ifdef __APPLE__
 #include "FFTManager.h"
-#else
-#include "FFTManager_opencv.h"
-#endif
 
 #ifdef __ANDROID__
 #include <android/log.h>

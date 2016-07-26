@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "FFTManager.h"
+#include <stdlib.h>
 #include <math.h>
 
 #include <opencv2/core/core.hpp>
