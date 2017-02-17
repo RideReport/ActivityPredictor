@@ -13,6 +13,10 @@ class RandomForestManager {
     var classLables: [Int32]!
     var classCount = 0
     
+    class var useAccelerometerOnly: Bool {
+        return true
+    }
+    
     struct Static {
         static var onceToken : dispatch_once_t = 0
         static var sharedManager : RandomForestManager?
@@ -35,7 +39,7 @@ class RandomForestManager {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("forest.cv", ofType: nil)
         let cpath = path?.cStringUsingEncoding(NSUTF8StringEncoding)
         
-        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!), false)
+        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!), RandomForestManager.useAccelerometerOnly)
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
@@ -61,10 +65,16 @@ class RandomForestManager {
     func classify(sensorDataCollection: SensorDataCollection)
     {
         let accelVector = self.magnitudeVector(forSensorData: sensorDataCollection.accelerometerAccelerations)
-        let gyroVector = self.magnitudeVector(forSensorData: sensorDataCollection.gyroscopeRotationRates)
+        
 
         let confidences = [Float](count:self.classCount, repeatedValue:0.0)
-        randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
+        
+        if (RandomForestManager.useAccelerometerOnly) {
+            randomForestClassificationConfidencesAccelerometerOnly(_ptr, UnsafeMutablePointer(accelVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
+        } else {
+            let gyroVector = self.magnitudeVector(forSensorData: sensorDataCollection.gyroscopeRotationRates)
+            randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
+        }
         
         var classConfidences: [Int: Float] = [:]
     
