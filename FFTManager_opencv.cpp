@@ -36,7 +36,7 @@ void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
         multipliedInput[i] = input[i] * _fft->multipliers[i];
     }
 
-    Mat dftInput = Mat(inputSize, 1, CV_32F, input);
+    Mat dftInput = Mat(inputSize, 1, CV_32F, multipliedInput);
     Mat dftOutput;
     Mat splitComplex[] = { Mat(inputSize, 1, CV_32F), Mat(inputSize, 1, CV_32F) };
 
