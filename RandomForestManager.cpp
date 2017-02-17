@@ -183,7 +183,7 @@ void prepFeatureVectorAccelerometerOnly(RandomForestManager *randomForestManager
 int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector)
 {
     assert(randomForestManager->isAcclereomterOnlyVersion == false);
-	
+
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
     prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector, gyroscopeVector);
 
@@ -192,7 +192,7 @@ int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManage
 
 void randomForestClassificationConfidencesAccelerometerOnly(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes) {
     assert(randomForestManager->isAcclereomterOnlyVersion == true);
-	
+
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE_ACCELEROMETER_ONLY, CV_32F);
 
     prepFeatureVectorAccelerometerOnly(randomForestManager, features.ptr<float>(), accelerometerVector);
@@ -208,7 +208,7 @@ void randomForestClassificationConfidencesAccelerometerOnly(RandomForestManager 
 
 void randomForestClassificationConfidences(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector, float *confidences, int n_classes) {
     assert(randomForestManager->isAcclereomterOnlyVersion == false);
-	
+
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
 
     prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector, gyroscopeVector);

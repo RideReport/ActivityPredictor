@@ -30,8 +30,8 @@ void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
         // throw?
         return;
     }
-	
-	float *multipliedInput = (float*) malloc(sizeof(float) * _fft->N);
+
+    float *multipliedInput = (float*) malloc(sizeof(float) * _fft->N);
     for (int i = 0; i < _fft->N; ++i) {
         multipliedInput[i] = input[i] * _fft->multipliers[i];
     }
@@ -50,7 +50,7 @@ void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
     for (int i = 0; i <= _fft->N/2; ++i) {
         output[i] = (splitComplex[0].at<float>(i) * splitComplex[0].at<float>(i)) + (splitComplex[1].at<float>(i) * splitComplex[1].at<float>(i));
     }
-	
+
 	free(multipliedInput);
 }
 
