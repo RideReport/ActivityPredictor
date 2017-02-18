@@ -13,7 +13,8 @@
 #include <android/log.h>
 #define DEBUG(str) __android_log_print(ANDROID_LOG_VERBOSE, "RandomForestManager", (str))
 #else
-#include <stdio.h>
+#include <iostream>
+#define DEBUG(str) (cout << "RandomForestManager DEBUG: " << str << endl)
 #endif
 
 #include <algorithm>
@@ -74,6 +75,15 @@ RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateH
     r->differences = new vector<float>(sampleSize);
 
     return r;
+}
+
+bool randomForestManagerIsUsable(RandomForestManager *r) {
+    int expectedVarCount = r->isAcclerometerOnlyVersion ? RANDOM_FOREST_VECTOR_SIZE_ACCELEROMETER_ONLY : RANDOM_FOREST_VECTOR_SIZE;
+    if (r->model->getVarCount() != expectedVarCount) {
+        DEBUG("var count does not match");
+        return false;
+    }
+    return true;
 }
 
 void deleteRandomForestManager(RandomForestManager *r)

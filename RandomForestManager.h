@@ -14,6 +14,7 @@ extern "C" {
 #endif
     typedef struct RandomForestManager RandomForestManager;
     RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile, bool isAcclereomterOnlyVersion);
+    bool randomForestManagerIsUsable(RandomForestManager *r);
     void deleteRandomForestManager(RandomForestManager *r);
     float dominantPowerOfFFT(RandomForestManager *randomForestManager, float * input, int inputSize, int managerType);
     float percentile(float *input, int length, float percentile);
