@@ -41,7 +41,7 @@ double kurtosis(cv::Mat mat);
 struct RandomForestManager {
     int sampleSize;
     int samplingRateHz;
-    bool isAcclereomterOnlyVersion;
+    bool isAcclerometerOnlyVersion;
     int fftIndex_above8hz;
     int fftIndex_below2_5hz;
     int fftIndex_above2hz;
@@ -54,14 +54,14 @@ struct RandomForestManager {
     cv::Ptr<cv::ml::RTrees> model;
 };
 
-RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile, bool isAcclereomterOnlyVersion)
+RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile, bool isAcclerometerOnlyVersion)
 {
     assert(fmod(log2(sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
 
     RandomForestManager *r = new RandomForestManager;
     r->sampleSize = sampleSize;
     r->fftManager = createFFTManager(sampleSize);
-    r->isAcclereomterOnlyVersion = isAcclereomterOnlyVersion;
+    r->isAcclerometerOnlyVersion = isAcclerometerOnlyVersion;
 
     r->model = cv::ml::RTrees::load<cv::ml::RTrees>(pathToModelFile);
 
@@ -182,7 +182,7 @@ void prepFeatureVectorAccelerometerOnly(RandomForestManager *randomForestManager
 
 int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector)
 {
-    assert(randomForestManager->isAcclereomterOnlyVersion == false);
+    assert(randomForestManager->isAcclerometerOnlyVersion == false);
 
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
     prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector, gyroscopeVector);
@@ -191,7 +191,7 @@ int randomForesetClassifyMagnitudeVector(RandomForestManager *randomForestManage
 }
 
 void randomForestClassificationConfidencesAccelerometerOnly(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes) {
-    assert(randomForestManager->isAcclereomterOnlyVersion == true);
+    assert(randomForestManager->isAcclerometerOnlyVersion == true);
 
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE_ACCELEROMETER_ONLY, CV_32F);
 
@@ -207,7 +207,7 @@ void randomForestClassificationConfidencesAccelerometerOnly(RandomForestManager 
 }
 
 void randomForestClassificationConfidences(RandomForestManager *randomForestManager, float* accelerometerVector, float* gyroscopeVector, float *confidences, int n_classes) {
-    assert(randomForestManager->isAcclereomterOnlyVersion == false);
+    assert(randomForestManager->isAcclerometerOnlyVersion == false);
 
     cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
 
