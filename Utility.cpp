@@ -11,13 +11,13 @@ using namespace std;
  *
  * Returns true if successful
  */
-bool interpolateLinearRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing)
+bool interpolateLinearRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset)
 {
-    float newX = inputX[0];
+    float newX;
     float slope;
     int nextInputIndex, outputIndex;
     for (outputIndex = 0, nextInputIndex = 1; outputIndex < outputLength; ++outputIndex) {
-        newX = inputX[0] + newSpacing * outputIndex;
+        newX = inputX[0] + initialOffset + newSpacing * outputIndex;
         while (newX > inputX[nextInputIndex]) {
             nextInputIndex += 1;
             if (nextInputIndex >= inputLength) {
@@ -30,7 +30,7 @@ bool interpolateLinearRegular(float* inputX, float* inputY, int inputLength, flo
     return outputIndex == outputLength;
 }
 
-bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing) {
+bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
 
     vector<double> X(inputX, inputX + inputLength);
     vector<double> Y(inputY, inputY + inputLength);
@@ -38,10 +38,9 @@ bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, flo
     tk::spline s;
     s.set_points(X, Y, true);
 
-    float newX = inputX[0];
     int outputIndex;
     for (outputIndex = 0; outputIndex < outputLength; ++outputIndex) {
-        outputY[outputIndex] = s(outputIndex * newSpacing);
+        outputY[outputIndex] = s(inputX[0] + initialOffset + outputIndex * newSpacing);
     }
 
     return outputIndex == outputLength;
