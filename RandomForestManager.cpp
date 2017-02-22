@@ -65,6 +65,7 @@ RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateH
     RandomForestManager *r = new RandomForestManager;
     r->sampleSize = sampleSize;
     r->fftManager = createFFTManager(sampleSize);
+    r->samplingRateHz = samplingRateHz;
 
     if (pathToModelFile != NULL) {
         r->model = cv::ml::RTrees::load<cv::ml::RTrees>(pathToModelFile);
@@ -186,13 +187,14 @@ bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestMa
     float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
     bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, 0.f);
-    if (!successful) {
-        return false;
+    if (successful) {
+        randomForestClassifyMagnitudeVector(randomForestManager, resampledNorms, confidences, n_classes);
     }
 
-    randomForestClassifyMagnitudeVector(randomForestManager, resampledNorms, confidences, n_classes);
-
-    return true;
+    delete[] norms;
+    delete[] seconds;
+    delete[] resampledNorms;
+    return successful;
 }
 
 int randomForestGetClassLabels(RandomForestManager *randomForestManager, int *labels, int n_classes) {
