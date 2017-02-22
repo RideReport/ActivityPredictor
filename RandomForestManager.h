@@ -12,12 +12,22 @@
 extern "C" {
 #endif
     typedef struct RandomForestManager RandomForestManager;
+
+    struct AccelerometerReading {
+        float x;
+        float y;
+        float z;
+        float t; // seconds
+    };
+    typedef struct AccelerometerReading AccelerometerReading;
+
     RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile);
     bool randomForestManagerCanPredict(RandomForestManager *r);
     void deleteRandomForestManager(RandomForestManager *r);
 	void prepFeatureVector(RandomForestManager *randomForestManager, float* features, float* accelerometerVector);
     void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes);
 	void randomForestClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes);
+    bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* signal, int readingCount, float* confidences, int n_classes);
     int randomForestGetClassCount(RandomForestManager *randomForestManager);
     int randomForestGetClassLabels(RandomForestManager *randomForestManager, int *labels, int classCount);
 #ifdef __cplusplus

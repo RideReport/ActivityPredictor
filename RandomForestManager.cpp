@@ -56,6 +56,8 @@ struct RandomForestManager {
     cv::Ptr<cv::ml::RTrees> model;
 };
 
+
+
 RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile)
 {
     assert(fmod(log2(sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
@@ -159,6 +161,38 @@ void randomForestClassifyMagnitudeVector(RandomForestManager *randomForestManage
 void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes) {
     cv::Mat featuresMat = cv::Mat(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F, (void*) features);
     randomForestClassifyFeaturesMat(randomForestManager, featuresMat, confidences, n_classes);
+}
+
+void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
+    float* norm;
+    float* second;
+    AccelerometerReading* reading;
+    int i;
+    for (second = seconds, norm = norms, reading = readings, i = 0; i < readingCount; ++i, ++reading, ++norm, ++second) {
+        *norm = sqrt(
+            (reading->x * reading->x) +
+            (reading->y * reading->y) +
+            (reading->z * reading->z));
+        *second = reading->t;
+    }
+}
+
+bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* readings, int readingCount, float* confidences, int n_classes) {
+    float* norms = new float[readingCount];
+    float* seconds = new float[readingCount];
+    prepareNormsAndSeconds(readings, norms, seconds, readingCount);
+
+    float* resampledNorms = new float[randomForestManager->sampleSize];
+    float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
+
+    bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, 0.f);
+    if (!successful) {
+        return false;
+    }
+
+    randomForestClassifyMagnitudeVector(randomForestManager, resampledNorms, confidences, n_classes);
+
+    return true;
 }
 
 int randomForestGetClassLabels(RandomForestManager *randomForestManager, int *labels, int n_classes) {
