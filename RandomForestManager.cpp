@@ -164,7 +164,14 @@ void randomForestClassifyFeatures(RandomForestManager *randomForestManager, floa
     randomForestClassifyFeaturesMat(randomForestManager, featuresMat, confidences, n_classes);
 }
 
+bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
+    return ((a.t) < (b.t));
+}
+
 void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
+    auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
+    std::sort(readings, readings + readingCount, readingIsLess);
+
     float* norm;
     float* second;
     AccelerometerReading* reading;
