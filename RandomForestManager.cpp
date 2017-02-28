@@ -186,6 +186,23 @@ void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
 }
 
 bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* readings, int readingCount, float* confidences, int n_classes) {
+    float* features = new float[RANDOM_FOREST_VECTOR_SIZE];
+    bool successful = randomForestPrepareFeaturesFromAccelerometerSignal(randomForestManager, readings, readingCount, features, RANDOM_FOREST_VECTOR_SIZE, 0.f);
+    if (successful) {
+        randomForestClassifyFeatures(randomForestManager, features, confidences, n_classes);
+    }
+
+    delete[] features;
+    return successful;
+}
+
+bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *randomForestManager,
+        AccelerometerReading* readings, int readingCount,
+        float* features, int feature_count, float offsetSeconds) {
+    if (feature_count < RANDOM_FOREST_VECTOR_SIZE) {
+        return false;
+    }
+
     float* norms = new float[readingCount];
     float* seconds = new float[readingCount];
     prepareNormsAndSeconds(readings, norms, seconds, readingCount);
@@ -195,7 +212,7 @@ bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestMa
 
     bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, 0.f);
     if (successful) {
-        randomForestClassifyMagnitudeVector(randomForestManager, resampledNorms, confidences, n_classes);
+        prepFeatureVector(randomForestManager, features, resampledNorms);
     }
 
     delete[] norms;

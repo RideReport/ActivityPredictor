@@ -28,6 +28,7 @@ extern "C" {
     void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes);
 	void randomForestClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes);
     bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* signal, int readingCount, float* confidences, int n_classes);
+    bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* readings, int readingCount, float* features, int feature_count, float offsetSeconds);
     int randomForestGetClassCount(RandomForestManager *randomForestManager);
     int randomForestGetClassLabels(RandomForestManager *randomForestManager, int *labels, int classCount);
 #ifdef __cplusplus
