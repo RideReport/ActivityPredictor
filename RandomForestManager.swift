@@ -13,10 +13,6 @@ class RandomForestManager {
     var classLables: [Int32]!
     var classCount = 0
     
-    class var useAccelerometerOnly: Bool {
-        return true
-    }
-    
     struct Static {
         static var onceToken : dispatch_once_t = 0
         static var sharedManager : RandomForestManager?
@@ -39,7 +35,7 @@ class RandomForestManager {
         let path = NSBundle(forClass: self.dynamicType).pathForResource("forest.cv", ofType: nil)
         let cpath = path?.cStringUsingEncoding(NSUTF8StringEncoding)
         
-        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!), RandomForestManager.useAccelerometerOnly)
+        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!))
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
@@ -49,32 +45,24 @@ class RandomForestManager {
         deleteRandomForestManager(_ptr)
     }
 
-    private func magnitudeVector(forSensorData sensorData:NSOrderedSet)->[Float] {
-        var mags: [Float] = []
+    private func accelerometerReadings(forSensorData sensorData:NSOrderedSet)->[AccelerometerReading] {
+        var readings: [AccelerometerReading] = []
         
         for elem in sensorData {
-            let reading = elem as! SensorData
-            let sum = reading.x.floatValue*reading.x.floatValue + reading.y.floatValue*reading.y.floatValue + reading.z.floatValue*reading.z.floatValue
-            mags.append(sqrtf(sum))
-            if mags.count >= MotionManager.sampleWindowSize { break } // it is possible we over-colleted some of the sensor data
+            let data = elem as! SensorData
+            let reading = AccelerometerReading(x: data.x.floatValue, y: data.y.floatValue, z: data.z.floatValue, t: Float(data.date.timeIntervalSinceReferenceDate))
+            readings.append(reading)
         }
         
-        return mags
+        return readings
     }
     
     func classify(sensorDataCollection: SensorDataCollection)
     {
-        let accelVector = self.magnitudeVector(forSensorData: sensorDataCollection.accelerometerAccelerations)
-        
-
+        let accelVector = self.accelerometerReadings(forSensorData: sensorDataCollection.accelerometerAccelerations)
         let confidences = [Float](count:self.classCount, repeatedValue:0.0)
         
-        if (RandomForestManager.useAccelerometerOnly) {
-            randomForestClassificationConfidencesAccelerometerOnly(_ptr, UnsafeMutablePointer(accelVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
-        } else {
-            let gyroVector = self.magnitudeVector(forSensorData: sensorDataCollection.gyroscopeRotationRates)
-            randomForestClassificationConfidences(_ptr, UnsafeMutablePointer(accelVector), UnsafeMutablePointer(gyroVector), UnsafeMutablePointer(confidences), Int32(self.classCount))
-        }
+        randomForestClassifyAccelerometerSignal(_ptr, UnsafeMutablePointer(accelVector), Int32(accelVector.count), UnsafeMutablePointer(confidences), Int32(self.classCount))
         
         var classConfidences: [Int: Float] = [:]
     
