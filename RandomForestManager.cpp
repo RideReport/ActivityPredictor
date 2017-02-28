@@ -44,7 +44,6 @@ double kurtosis(cv::Mat mat);
 struct RandomForestManager {
     int sampleSize;
     int samplingRateHz;
-    int fftIndex_above8hz;
     int fftIndex_below2_5hz;
     int fftIndex_above2hz;
     int fftIndex_above3_5hz;
@@ -72,7 +71,6 @@ RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateH
     }
 
     float sampleSpacing = 1. / (float) samplingRateHz;
-    r->fftIndex_above8hz = ceilf(sampleSpacing * sampleSize * 8.0);
     r->fftIndex_below2_5hz = floorf(sampleSpacing * sampleSize * 2.5);
     r->fftIndex_above2hz = ceilf(sampleSpacing * sampleSize * 2.0);
     r->fftIndex_above3_5hz = ceilf(sampleSpacing * sampleSize * 3.5);
