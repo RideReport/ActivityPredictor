@@ -1,10 +1,108 @@
 #include <stdio.h>
 #include <opencv2/core/core.hpp>
 #include <vector>
-
-#include "spline.h"
+#include <math.h>
 
 using namespace std;
+
+// spline interpolator from:
+// http://blog.ivank.net/interpolation-with-cubic-splines.html
+// (MIT license, translated from JS)
+
+void swapRows(cv::Mat M, int k, int l) {
+    float temp;
+    for (int i = 0; i < M.cols; ++i) {
+      temp = M.at<float>(k, i);
+      M.at<float>(k, i) = M.at<float>(l, i);
+      M.at<float>(l, i) = temp;
+   }
+}
+
+void solve(cv::Mat A, float* x) {
+   int rows = A.rows;
+    for(int k=0; k<rows; k++)	// column
+    {
+        // pivot for column
+        int i_max = 0;
+        double vali = -1;
+        for (int i=k; i<rows; i++)
+        {
+            if (abs(A.at<float>(i, k))>vali)
+            {
+                i_max = i;
+                vali = abs(A.at<float>(i, k));
+            }
+        }
+        swapRows(A, k, i_max);
+
+        // for all rows below pivot
+        for(int i=k+1; i<rows; i++)
+        {
+            double cf = (A.at<float>(i, k) / A.at<float>(k, k));
+            for (int j=k; j<rows+1; j++) {
+                A.at<float>(i, j) -= A.at<float>(k, j) * cf;
+            }
+        }
+    }
+
+	for(int i=rows-1; i>=0; i--)	// rows = columns
+	{
+		double v = A.at<float>(i, rows) / A.at<float>(i, i);
+		x[i] = v;
+		for(int j=i-1; j>=0; j--)	// rows
+		{
+			A.at<float>(j, rows) -= A.at<float>(j, i) * v;
+			A.at<float>(j, i) = 0;
+		}
+	}
+}
+
+void getNaturalKs(float* xs, int xCount, float* ys, float* ks)
+{
+   cv::Mat A(xCount, xCount+1, CV_32F);
+   for(int x = 0; x < xCount; x++) {
+       for(int y = 0; y < xCount + 1; y ++) {
+           A.at<float>(x, y) = 0;
+       }
+   }
+
+   for(int i=1; i<xCount-1; i++) {
+       A.at<float>(i, i-1) = 1/(xs[i] - xs[i-1]);
+
+       A.at<float>(i, i) = 2 * (1/(xs[i] - xs[i-1]) + 1/(xs[i+1] - xs[i])) ;
+
+       A.at<float>(i, i+1) = 1/(xs[i+1] - xs[i]);
+
+       A.at<float>(i, xCount) = 3*( (ys[i]-ys[i-1])/((xs[i] - xs[i-1])*(xs[i] - xs[i-1]))  +  (ys[i+1]-ys[i])/ ((xs[i+1] - xs[i])*(xs[i+1] - xs[i])) );
+   }
+
+   A.at<float>(0, 0) = 2/(xs[1] - xs[0]);
+   A.at<float>(0, 1) = 1/(xs[1] - xs[0]);
+   A.at<float>(0, xCount) = 3 * (ys[1] - ys[0]) / ((xs[1]-xs[0])*(xs[1]-xs[0]));
+
+   A.at<float>(xCount-1, xCount-2) = 1/(xs[xCount-1] - xs[xCount-2]);
+   A.at<float>(xCount-1, xCount-1) = 2/(xs[xCount-1] - xs[xCount-2]);
+   A.at<float>(xCount-1, xCount) = 3 * (ys[xCount-1] - ys[xCount-2]) / ((xs[xCount-1]-xs[xCount-2])*(xs[xCount-1]-xs[xCount-2]));
+
+   solve(A, ks);
+}
+
+float evaluateSpline(float x, float* xs, float *ys, float *ks)
+{
+   int i = 1;
+   while(xs[i]<x) {
+       i++;
+   }
+
+   float t = (x - xs[i-1]) / (xs[i] - xs[i-1]);
+
+   float a =  ks[i-1]*(xs[i]-xs[i-1]) - (ys[i]-ys[i-1]);
+   float b = -ks[i  ]*(xs[i]-xs[i-1]) + (ys[i]-ys[i-1]);
+
+   float q = (1-t)*ys[i-1] + t*ys[i] + t*(1-t)*(a*(1-t)+b*t);
+
+   return q;
+}
 
 /**
  * Interpolate a 1-dimensional input function along a new spacing
@@ -32,15 +130,13 @@ bool interpolateLinearRegular(float* inputX, float* inputY, int inputLength, flo
 
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
 
-    vector<double> X(inputX, inputX + inputLength);
-    vector<double> Y(inputY, inputY + inputLength);
-
-    tk::spline s;
-    s.set_points(X, Y, true);
+    float ks[inputLength];
+    getNaturalKs(inputX, inputLength, inputY, ks);
 
     int outputIndex;
     for (outputIndex = 0; outputIndex < outputLength; ++outputIndex) {
-        outputY[outputIndex] = s(inputX[0] + initialOffset + outputIndex * newSpacing);
+        outputY[outputIndex] = evaluateSpline(inputX[0] + initialOffset + outputIndex * newSpacing, inputX, inputY, ks);
+        // TODO: add bounds check
     }
 
     return outputIndex == outputLength;

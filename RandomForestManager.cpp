@@ -102,7 +102,7 @@ void deleteRandomForestManager(RandomForestManager *r)
     free(r);
 }
 
-void prepFeatureVector(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
+void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
     cv::Mat mags = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, accelerometerVector);
 
     cv::Scalar meanMag,stddevMag;
@@ -136,30 +136,19 @@ void prepFeatureVector(RandomForestManager *randomForestManager, float* features
     features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9);
 }
 
-void randomForestClassifyFeaturesMat(RandomForestManager *randomForestManager, cv::Mat features, float* confidences, int n_classes) {
+void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes) {
+    cv::Mat featuresMat = cv::Mat(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F, (void*) features);
     if (randomForestManager->model.empty()) {
         return;
     }
 
     cv::Mat results;
 
-    randomForestManager->model->predictProb(features, results, cv::ml::DTrees::PREDICT_CONFIDENCE);
+    randomForestManager->model->predictProb(featuresMat, results, cv::ml::DTrees::PREDICT_CONFIDENCE);
 
     for (int i = 0; i < n_classes; ++i) {
         confidences[i] = results.at<float>(i);
     }
-}
-
-void randomForestClassifyMagnitudeVector(RandomForestManager *randomForestManager, float* accelerometerVector, float *confidences, int n_classes) {
-    cv::Mat features = cv::Mat::zeros(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F);
-
-    prepFeatureVector(randomForestManager, features.ptr<float>(), accelerometerVector);
-    randomForestClassifyFeaturesMat(randomForestManager, features, confidences, n_classes);
-}
-
-void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes) {
-    cv::Mat featuresMat = cv::Mat(1, RANDOM_FOREST_VECTOR_SIZE, CV_32F, (void*) features);
-    randomForestClassifyFeaturesMat(randomForestManager, featuresMat, confidences, n_classes);
 }
 
 bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
@@ -210,7 +199,7 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
 
     bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, 0.f);
     if (successful) {
-        prepFeatureVector(randomForestManager, features, resampledNorms);
+        calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
     }
 
     delete[] norms;
