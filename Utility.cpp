@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <opencv2/core/core.hpp>
 #include <math.h>
 #include "Utility.h"
 
