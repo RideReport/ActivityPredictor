@@ -8,10 +8,8 @@
 
 #ifndef Utility_h
 #define Utility_h
-
+#include <opencv2/core/core.hpp>
 #include <vector>
-
-#endif /* Utility_h */
 
 using namespace std;
 
@@ -22,3 +20,5 @@ double skewness(cv::Mat mat);
 double kurtosis(cv::Mat mat);
 float trapezoidArea(vector<float>::iterator start, vector<float>::iterator end);
 float percentile(float *input, int length, float percentile);
+
+#endif /* Utility_h */
