@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <opencv2/core/core.hpp>
-#include <vector>
 #include <math.h>
-
-using namespace std;
+#include "Utility.h"
 
 // spline interpolator from:
 // http://blog.ivank.net/interpolation-with-cubic-splines.html
@@ -102,30 +100,6 @@ float evaluateSpline(float x, float* xs, float *ys, float *ks)
    float q = (1-t)*ys[i-1] + t*ys[i] + t*(1-t)*(a*(1-t)+b*t);
 
    return q;
-}
-
-/**
- * Interpolate a 1-dimensional input function along a new spacing
- *
- * Returns true if successful
- */
-bool interpolateLinearRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset)
-{
-    float newX;
-    float slope;
-    int nextInputIndex, outputIndex;
-    for (outputIndex = 0, nextInputIndex = 1; outputIndex < outputLength; ++outputIndex) {
-        newX = inputX[0] + initialOffset + newSpacing * outputIndex;
-        while (newX > inputX[nextInputIndex]) {
-            nextInputIndex += 1;
-            if (nextInputIndex >= inputLength) {
-                break;
-            }
-        }
-        slope = (inputY[nextInputIndex] - inputY[nextInputIndex-1]) / (inputX[nextInputIndex] - inputX[nextInputIndex-1]);
-        outputY[outputIndex] = slope * (newX - inputX[nextInputIndex-1]) + inputY[nextInputIndex-1];
-    }
-    return outputIndex == outputLength;
 }
 
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {

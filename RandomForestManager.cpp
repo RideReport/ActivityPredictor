@@ -24,7 +24,7 @@
 #include <vector>
 #include <cmath>
 
-#include "Utility.cpp"
+#include "Utility.h"
 
 #ifdef __APPLE__
 #define FFT_TYPE_NUMBER 0
