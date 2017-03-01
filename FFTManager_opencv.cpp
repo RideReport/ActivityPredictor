@@ -12,7 +12,7 @@ struct FFTManager {
 
 void setupHammingWindow(float *values, int N) {
     for (int i = 0; i < N; ++i) {
-        values[i] = 0.54 - 0.46 * cos(2*M_PI*i/(N-1));
+        values[i] = 0.54 - 0.46 * cos(2*M_PI*i/N);
     }
 }
 
@@ -51,7 +51,7 @@ void fft(FFTManager *_fft, float * input, int inputSize, float *output) {
         output[i] = (splitComplex[0].at<float>(i) * splitComplex[0].at<float>(i)) + (splitComplex[1].at<float>(i) * splitComplex[1].at<float>(i));
     }
 
-	free(multipliedInput);
+	  free(multipliedInput);
 }
 
 void deleteFFTManager(FFTManager *_fft) {
