@@ -17,7 +17,7 @@ extern "C" {
         float x;
         float y;
         float z;
-        float t; // seconds
+        double t; // seconds
     };
     typedef struct AccelerometerReading AccelerometerReading;
 

@@ -3,6 +3,9 @@
 #include <math.h>
 #include "Utility.h"
 
+#include <iostream>
+using namespace std;
+
 // spline interpolator from:
 // http://blog.ivank.net/interpolation-with-cubic-splines.html
 // (MIT license, translated from JS)
@@ -110,7 +113,7 @@ bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, flo
     int outputIndex;
     for (outputIndex = 0; outputIndex < outputLength; ++outputIndex) {
         outputY[outputIndex] = evaluateSpline(inputX[0] + initialOffset + outputIndex * newSpacing, inputX, inputY, ks);
-        // TODO: add bounds check
+        // TODO bounds
     }
 
     return outputIndex == outputLength;

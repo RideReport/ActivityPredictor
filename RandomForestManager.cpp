@@ -14,7 +14,7 @@
 #define DEBUG(str) __android_log_print(ANDROID_LOG_VERBOSE, "RandomForestManager", (str))
 #else
 #include <iostream>
-#define DEBUG(str) (cout << "RandomForestManager DEBUG: " << str << endl)
+#define DEBUG(str) (cerr << "RandomForestManager DEBUG: " << str << endl)
 #endif
 
 #include <algorithm>
@@ -159,16 +159,21 @@ void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
+    if (readingCount < 1) {
+        throw std::runtime_error("need at least one reading in prepareNormsAndSeconds");
+    }
+
     float* norm;
     float* second;
     AccelerometerReading* reading;
     int i;
+    double firstReadingT = readings[0].t;
     for (second = seconds, norm = norms, reading = readings, i = 0; i < readingCount; ++i, ++reading, ++norm, ++second) {
         *norm = sqrt(
             (reading->x * reading->x) +
             (reading->y * reading->y) +
             (reading->z * reading->z));
-        *second = reading->t;
+        *second = (float)(reading->t - firstReadingT);
     }
 }
 
