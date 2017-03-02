@@ -202,7 +202,7 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
     float* resampledNorms = new float[randomForestManager->sampleSize];
     float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
-    bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, 0.f);
+    bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, offsetSeconds);
     if (successful) {
         calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
     }
