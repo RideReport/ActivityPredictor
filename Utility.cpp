@@ -107,12 +107,16 @@ float evaluateSpline(float x, float* xs, float *ys, float *ks)
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
 
     float ks[inputLength];
+    float maxX = inputX[inputLength-1];
     getNaturalKs(inputX, inputLength, inputY, ks);
 
     int outputIndex;
     for (outputIndex = 0; outputIndex < outputLength; ++outputIndex) {
-        outputY[outputIndex] = evaluateSpline(inputX[0] + initialOffset + outputIndex * newSpacing, inputX, inputY, ks);
-        // TODO bounds
+        float newX = inputX[0] + initialOffset + outputIndex * newSpacing;
+        if (newX > maxX) {
+           break;
+        }
+        outputY[outputIndex] = evaluateSpline(newX, inputX, inputY, ks);
     }
 
     return outputIndex == outputLength;
