@@ -155,12 +155,12 @@ bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
     return ((a.t) < (b.t));
 }
 
-void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
+bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
     if (readingCount < 1) {
-        throw std::runtime_error("need at least one reading in prepareNormsAndSeconds");
+        return false;
     }
 
     float* norm;
@@ -175,6 +175,8 @@ void prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
             (reading->z * reading->z));
         *second = (float)(reading->t - firstReadingT);
     }
+
+    return true;
 }
 
 bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* readings, int readingCount, float* confidences, int n_classes) {
@@ -197,19 +199,23 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
 
     float* norms = new float[readingCount];
     float* seconds = new float[readingCount];
-    prepareNormsAndSeconds(readings, norms, seconds, readingCount);
+    bool successful = false;
 
-    float* resampledNorms = new float[randomForestManager->sampleSize];
-    float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
+    if (prepareNormsAndSeconds(readings, norms, seconds, readingCount)) {
+        float* resampledNorms = new float[randomForestManager->sampleSize];
+        float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
-    bool successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, offsetSeconds);
-    if (successful) {
-        calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
+        successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, offsetSeconds);
+        if (successful) {
+            calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
+        }
+
+        delete[] resampledNorms;
     }
 
     delete[] norms;
     delete[] seconds;
-    delete[] resampledNorms;
+
     return successful;
 }
 
