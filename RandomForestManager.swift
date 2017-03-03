@@ -50,7 +50,7 @@ class RandomForestManager {
         
         for elem in sensorData {
             let data = elem as! SensorData
-            let reading = AccelerometerReading(x: data.x.floatValue, y: data.y.floatValue, z: data.z.floatValue, t: Float(data.date.timeIntervalSinceReferenceDate))
+            let reading = AccelerometerReading(x: data.x.floatValue, y: data.y.floatValue, z: data.z.floatValue, t: data.date.timeIntervalSinceReferenceDate)
             readings.append(reading)
         }
         
