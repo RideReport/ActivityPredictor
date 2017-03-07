@@ -107,7 +107,6 @@ void solveTDMatrixThomas(cv::Mat A, float* x) {
     // column is the result vector b.
     // printMatrix(A);
     // printVector(x, A.rows);
-
     cv::Mat d = A.col(A.rows);
 
     int n = A.rows;
@@ -130,7 +129,6 @@ void solveTDMatrixThomas(cv::Mat A, float* x) {
     for (int k = n-2; k >= 0; k--) {
         x[k] = (d.at<float>(k) - A.at<float>(k, k+1) * x[k+1]) / A.at<float>(k, k);
     }
-
     // printMatrix(A);
     // printVector(x, A.rows);
 }
@@ -229,8 +227,8 @@ bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, flo
     LOCAL_TIMING_START();
     float ks[inputLength];
     float maxX = inputX[inputLength-1];
-    getNaturalKs(inputX, inputLength, inputY, ks);
 
+    getNaturalKs(inputX, inputLength, inputY, ks);
     int outputIndex;
     for (outputIndex = 0; outputIndex < outputLength; ++outputIndex) {
         float newX = inputX[0] + initialOffset + outputIndex * newSpacing;

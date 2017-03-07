@@ -50,7 +50,7 @@ struct RandomForestManager {
     FFTManager *fftManager;
 
 
-    vector<float> *differences;
+    vector<float> differences;
 
     cv::Ptr<cv::ml::RTrees> model;
 };
@@ -74,7 +74,7 @@ RandomForestManager *createRandomForestManagerFromConfiguration(RFConfiguration*
     r->fftIndex_above2hz = ceilf(sampleSpacing * r->sampleSize * 2.0);
     r->fftIndex_above3_5hz = ceilf(sampleSpacing * r->sampleSize * 3.5);
 
-    r->differences = new vector<float>(r->sampleSize);
+    r->differences = vector<float>(r->sampleSize);
 
     return r;
 }
@@ -147,11 +147,14 @@ bool randomForestManagerCanPredict(RandomForestManager *r) {
 
 void deleteRandomForestManager(RandomForestManager *r)
 {
-    deleteFFTManager(r->fftManager);
+    if (r != NULL) {
+        deleteFFTManager(r->fftManager);
 
-    delete(r->model);
-    delete r->differences;
-    free(r);
+        if (!r->model.empty()) {
+            r->model.release();
+        }
+        free(r);
+    }
 }
 
 void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
@@ -219,7 +222,7 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
-    if (readingCount < 1) {
+    if (readingCount < 4) {
         return false;
     }
 
@@ -273,7 +276,6 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
 
         delete[] resampledNorms;
     }
-
     delete[] norms;
     delete[] seconds;
 
