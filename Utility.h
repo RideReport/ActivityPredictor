@@ -12,6 +12,23 @@
 #include <vector>
 #include "json/json.h"
 
+#ifndef RANDOM_FOREST_PRINT_TIMING
+#define RANDOM_FOREST_PRINT_TIMING (1)
+#endif
+
+#if RANDOM_FOREST_PRINT_TIMING
+#include <iostream>
+#include <chrono>
+#include <sys/time.h>
+#define LOCAL_TIMING_START() std::chrono::high_resolution_clock::time_point _t1 = std::chrono::high_resolution_clock::now()
+#define LOCAL_TIMING_FINISH(name) do { \
+    std::chrono::high_resolution_clock::time_point _t2 = std::chrono::high_resolution_clock::now(); \
+    std::cerr << name << ": " << std::chrono::duration_cast<std::chrono::nanoseconds>( _t2 - _t1 ).count() << " nanoseconds" << std::endl; } while (0)
+#else
+#define LOCAL_TIMING_START() do {} while (0)
+#define LOCAL_TIMING_FINISH(name) do {} while (0)
+#endif
+
 using namespace std;
 
 struct RFConfiguration {

@@ -6,6 +6,10 @@
 //  Copyright © 2015 Knock Softwae, Inc. All rights reserved.
 //
 
+#ifndef RANDOM_FOREST_PRINT_TIMING
+#define RANDOM_FOREST_PRINT_TIMING (1)
+#endif
+
 #define RANDOM_FOREST_VECTOR_SIZE (13)
 #define RANDOM_FOREST_SAMPLING_RATE_HZ 20f
 #ifdef __cplusplus

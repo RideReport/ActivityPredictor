@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
 void loadConfigurationFromJsonValue(RFConfiguration* config, Json::Value root) {
@@ -168,7 +169,7 @@ float evaluateSpline(float x, float* xs, float *ys, float *ks)
 }
 
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
-
+    LOCAL_TIMING_START();
     float ks[inputLength];
     float maxX = inputX[inputLength-1];
     getNaturalKs(inputX, inputLength, inputY, ks);
@@ -182,6 +183,7 @@ bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, flo
         outputY[outputIndex] = evaluateSpline(newX, inputX, inputY, ks);
     }
 
+    LOCAL_TIMING_FINISH("interpolateSplineRegular");
     return outputIndex == outputLength;
 }
 

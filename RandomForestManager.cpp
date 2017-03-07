@@ -35,12 +35,6 @@
 using namespace cv;
 using namespace std;
 
-// Private Functions
-float max(cv::Mat mat);
-double maxMean(cv::Mat mat, int windowSize);
-double skewness(cv::Mat mat);
-double kurtosis(cv::Mat mat);
-
 struct RandomForestManager {
     string modelPath;
     string modelSha256;
@@ -161,6 +155,8 @@ void deleteRandomForestManager(RandomForestManager *r)
 }
 
 void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
+    LOCAL_TIMING_START();
+
     cv::Mat mags = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, accelerometerVector);
 
     cv::Scalar meanMag,stddevMag;
@@ -192,6 +188,8 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[10] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.5);
     features[11] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.75);
     features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9);
+
+    LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
 
 void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes) {
@@ -202,7 +200,9 @@ void randomForestClassifyFeatures(RandomForestManager *randomForestManager, floa
 
     cv::Mat results;
 
+    LOCAL_TIMING_START();
     randomForestManager->model->predictProb(featuresMat, results, cv::ml::DTrees::PREDICT_CONFIDENCE);
+    LOCAL_TIMING_FINISH("predictProb");
 
     for (int i = 0; i < n_classes; ++i) {
         confidences[i] = results.at<float>(i);
@@ -214,6 +214,8 @@ bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
 }
 
 bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
+    LOCAL_TIMING_START();
+
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
@@ -234,6 +236,7 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
         *second = (float)(reading->t - firstReadingT);
     }
 
+    LOCAL_TIMING_FINISH("prepareNormsAndSeconds");
     return true;
 }
 
