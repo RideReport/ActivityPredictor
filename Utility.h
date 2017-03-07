@@ -13,7 +13,7 @@
 #include "json/json.h"
 
 #ifndef RANDOM_FOREST_PRINT_TIMING
-#define RANDOM_FOREST_PRINT_TIMING (1)
+#define RANDOM_FOREST_PRINT_TIMING (0)
 #endif
 
 #if RANDOM_FOREST_PRINT_TIMING

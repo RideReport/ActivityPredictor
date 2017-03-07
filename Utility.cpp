@@ -82,7 +82,62 @@ void swapRows(cv::Mat M, int k, int l) {
     }
 }
 
-void solve(cv::Mat A, float* x) {
+void printMatrix(cv::Mat A) {
+    cerr << "Matrix " << A.rows << "x" << A.cols << endl;
+    for (int i = 0; i < A.rows; ++i) {
+        for (int j = 0; j < A.cols; ++j) {
+            cerr << A.at<float>(i, j) << " ";
+        }
+        cerr << endl;
+    }
+}
+
+void printVector(float* x, int len) {
+    cerr << "Vector " << len << endl;
+    for (int i = 0; i < len; ++i) {
+        cerr << x[i] << " ";
+    }
+    cerr << endl;
+}
+
+void solveTDMatrixThomas(cv::Mat A, float* x) {
+    // Solve for x in the matrix equation Ax = b.
+    //
+    // The first `A.rows` columns of parameter A are the matrix A; the last
+    // column is the result vector b.
+    // printMatrix(A);
+    // printVector(x, A.rows);
+
+    cv::Mat d = A.col(A.rows);
+
+    int n = A.rows;
+
+    for (int i = 0; i < n; ++i) {
+        assert(A.at<float>(i, i) != 0.f);
+    }
+
+    float m;
+    for (int k = 1; k < n; k++) {
+        // m = a_k / b_(k-1)
+        m = A.at<float>(k, k-1) / A.at<float>(k-1, k-1);
+        // b_k = b_k - m*c_(k-1)
+        A.at<float>(k, k) -= m * A.at<float>(k-1, k);
+        // d_k = d_k - m*d_(k-1)
+        d.at<float>(k) -= m * d.at<float>(k-1);
+    }
+
+    x[n-1] = d.at<float>(n-1) / A.at<float>(n-1, n-1);
+    for (int k = n-2; k >= 0; k--) {
+        x[k] = (d.at<float>(k) - A.at<float>(k, k+1) * x[k+1]) / A.at<float>(k, k);
+    }
+
+    // printMatrix(A);
+    // printVector(x, A.rows);
+}
+
+void solveMatrixGaussJordan(cv::Mat A, float* x) {
+    // printMatrix(A);
+    // printVector(x, A.rows);
     int rows = A.rows;
     for(int k=0; k<rows; k++)	// column
     {
@@ -119,7 +174,9 @@ void solve(cv::Mat A, float* x) {
 			A.at<float>(j, i) = 0;
 		}
 	}
+    // printVector(x, A.rows);
 }
+
 
 void getNaturalKs(float* xs, int xCount, float* ys, float* ks)
 {
@@ -148,7 +205,7 @@ void getNaturalKs(float* xs, int xCount, float* ys, float* ks)
    A.at<float>(xCount-1, xCount-1) = 2/(xs[xCount-1] - xs[xCount-2]);
    A.at<float>(xCount-1, xCount) = 3 * (ys[xCount-1] - ys[xCount-2]) / ((xs[xCount-1]-xs[xCount-2])*(xs[xCount-1]-xs[xCount-2]));
 
-   solve(A, ks);
+   solveTDMatrixThomas(A, ks);
 }
 
 float evaluateSpline(float x, float* xs, float *ys, float *ks)
