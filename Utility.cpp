@@ -3,7 +3,70 @@
 #include "Utility.h"
 
 #include <iostream>
+#include <fstream>
 using namespace std;
+
+void loadConfigurationFromJsonValue(RFConfiguration* config, Json::Value root) {
+    if (root["model_metadata_version"].asInt() > 1) {
+        throw std::runtime_error("Unsupported value for model_metadata_version");
+    }
+
+    Json::Value sampleCount = root["sampling"]["sample_count"];
+    if (sampleCount.isNull() || !sampleCount.isInt()) {
+        throw std::runtime_error("Unacceptable sample_count");
+    }
+
+    config->sampleSize = sampleCount.asInt();
+    if (fmod(log2(config->sampleSize), 1.0) != 0.0) {
+        throw std::runtime_error("sampleCount must be a power of 2");
+    }
+
+    Json::Value samplingRateHz = root["sampling"]["sampling_rate_hz"];
+    if (samplingRateHz.isNull() || !samplingRateHz.isNumeric()) {
+        throw std::runtime_error("Unsupported sampling_rate_hz");
+    }
+    config->samplingRateHz = samplingRateHz.asFloat();
+
+    // This is an optional field; returns empty string if not present
+    config->modelSha256 = root["cv_sha256"].asString();
+    config->dataSha256 = root["data"]["sha256"].asString();
+}
+
+bool loadConfigurationFromString(RFConfiguration* config, const char* jsonString) {
+    stringstream ss(jsonString);
+    Json::Value root;
+    ss >> root;
+    try {
+        loadConfigurationFromJsonValue(config, root);
+    }
+    catch (std::runtime_error& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    catch (std::exception& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    return true;
+}
+
+bool loadConfigurationFromJsonFile(RFConfiguration* config, const char* pathToJson) {
+    try {
+        ifstream doc(pathToJson, ifstream::binary);
+        Json::Value root;
+        doc >> root;
+        loadConfigurationFromJsonValue(config, root);
+    }
+    catch (std::runtime_error& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    catch (std::exception& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    return true;
+}
 
 // spline interpolator from:
 // http://blog.ivank.net/interpolation-with-cubic-splines.html
@@ -12,14 +75,14 @@ using namespace std;
 void swapRows(cv::Mat M, int k, int l) {
     float temp;
     for (int i = 0; i < M.cols; ++i) {
-      temp = M.at<float>(k, i);
-      M.at<float>(k, i) = M.at<float>(l, i);
-      M.at<float>(l, i) = temp;
-   }
+        temp = M.at<float>(k, i);
+        M.at<float>(k, i) = M.at<float>(l, i);
+        M.at<float>(l, i) = temp;
+    }
 }
 
 void solve(cv::Mat A, float* x) {
-   int rows = A.rows;
+    int rows = A.rows;
     for(int k=0; k<rows; k++)	// column
     {
         // pivot for column

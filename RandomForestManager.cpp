@@ -42,42 +42,100 @@ double skewness(cv::Mat mat);
 double kurtosis(cv::Mat mat);
 
 struct RandomForestManager {
+    string modelPath;
+    string modelSha256;
+    string dataSha256;
+
     int sampleSize;
-    int samplingRateHz;
+    float samplingRateHz;
+
     int fftIndex_below2_5hz;
     int fftIndex_above2hz;
     int fftIndex_above3_5hz;
 
     FFTManager *fftManager;
 
+
     vector<float> *differences;
 
     cv::Ptr<cv::ml::RTrees> model;
 };
 
-
-
-RandomForestManager *createRandomForestManager(int sampleSize, int samplingRateHz, const char* pathToModelFile)
-{
-    assert(fmod(log2(sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
-
+RandomForestManager *createRandomForestManagerFromConfiguration(RFConfiguration* config, const char* pathToModelFile) {
     RandomForestManager *r = new RandomForestManager;
-    r->sampleSize = sampleSize;
-    r->fftManager = createFFTManager(sampleSize);
-    r->samplingRateHz = samplingRateHz;
+    r->sampleSize = config->sampleSize;
+    r->samplingRateHz = config->samplingRateHz;
+    r->modelSha256 = config->modelSha256;
+    r->dataSha256 = config->dataSha256;
 
+    assert(fmod(log2(r->sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
+
+    r->fftManager = createFFTManager(r->sampleSize);
     if (pathToModelFile != NULL) {
-        r->model = cv::ml::RTrees::load<cv::ml::RTrees>(pathToModelFile);
+        r->modelPath = string(pathToModelFile);
     }
 
-    float sampleSpacing = 1. / (float) samplingRateHz;
-    r->fftIndex_below2_5hz = floorf(sampleSpacing * sampleSize * 2.5);
-    r->fftIndex_above2hz = ceilf(sampleSpacing * sampleSize * 2.0);
-    r->fftIndex_above3_5hz = ceilf(sampleSpacing * sampleSize * 3.5);
+    float sampleSpacing = 1. / r->samplingRateHz;
+    r->fftIndex_below2_5hz = floorf(sampleSpacing * r->sampleSize * 2.5);
+    r->fftIndex_above2hz = ceilf(sampleSpacing * r->sampleSize * 2.0);
+    r->fftIndex_above3_5hz = ceilf(sampleSpacing * r->sampleSize * 3.5);
 
-    r->differences = new vector<float>(sampleSize);
+    r->differences = new vector<float>(r->sampleSize);
 
     return r;
+}
+
+RandomForestManager *createRandomForestManagerFromJsonString(const char* jsonString) {
+    RFConfiguration config;
+    if (loadConfigurationFromString(&config, jsonString)) {
+        return createRandomForestManagerFromConfiguration(&config, NULL);
+    }
+    else {
+        return NULL;
+    }
+}
+
+RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson, const char* pathToModelFile)
+{
+    RFConfiguration config;
+    if (loadConfigurationFromJsonFile(&config, pathToJson)) {
+        return createRandomForestManagerFromConfiguration(&config, pathToModelFile);
+    }
+    else {
+        return NULL;
+    }
+}
+
+/**
+ * Maximum spacing between accelerometer readings, in seconds
+ */
+float randomForestGetDesiredSpacing(RandomForestManager *r) {
+    return 1. / r->samplingRateHz;
+}
+
+/**
+ * Minimum length of continuous readings, in seconds
+ */
+float randomForestGetDesiredDuration(RandomForestManager *r) {
+    // Desired duration is the difference between the time of the first
+    // and the time of the last
+    return (r->sampleSize - 1) / r->samplingRateHz;
+}
+
+const char* randomForestGetModelHash(RandomForestManager *r) {
+    return r->modelSha256.c_str();
+}
+
+const char* randomForestGetDataHash(RandomForestManager *r) {
+    return r->dataSha256.c_str();
+}
+
+bool randomForestLoadModel(RandomForestManager *r) {
+    if (r->modelPath.empty()) {
+        return false;
+    }
+    r->model = cv::ml::RTrees::load<cv::ml::RTrees>(r->modelPath);
+    return true;
 }
 
 bool randomForestManagerCanPredict(RandomForestManager *r) {
