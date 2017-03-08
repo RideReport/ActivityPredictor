@@ -1,33 +1,33 @@
 {
-  "cv_sha256": "fd1fd70e48ccc0082292e521628321584273a928e411875a64e04777ed614b22", 
-  "code": {
-    "pipeline_is_dirty": false, 
-    "predictor_commit_sha": "616bb29527e9c4acd7154308c3925e7d4f876c67", 
-    "predictor_is_dirty": false, 
-    "pipeline_commit_sha": "75d1628a9bdef92d36a19459b7265605056dccff"
-  }, 
-  "features": {
-    "count": 443616, 
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778"
-  }, 
-  "confusion": {
-    "matrix_str": "CV Accuracy 1:  99 1=99 2= 0 3= 0 4= 0 5= 0 6= 0 7= 0 ( 10247 total)\nCV Accuracy 2:  92 1= 0 2=92 3= 1 4= 1 5= 3 6= 0 7= 0 ( 136246 total)\nCV Accuracy 3:  86 1= 0 2= 1 3=86 4= 0 5= 9 6= 2 7= 0 ( 95497 total)\nCV Accuracy 4:  97 1= 0 2= 2 3= 0 4=97 5= 0 6= 0 7= 0 ( 119196 total)\nCV Accuracy 5:  86 1= 0 2= 2 3= 5 4= 0 5=86 6= 5 7= 0 ( 24516 total)\nCV Accuracy 6:  89 1= 0 2= 0 3= 3 4= 0 5= 4 6=89 7= 1 ( 36573 total)\nCV Accuracy 7:  92 1= 0 2= 0 3= 1 4= 0 5= 1 6= 4 7=92 ( 21341 total)", 
-    "matrix_is_oob": false
-  }, 
   "builder": {
-    "active_var_count": 0, 
-    "epsilon": 0.0001, 
-    "max_tree_count": 10, 
+    "active_var_count": 0,
+    "epsilon": 0.0001,
+    "max_tree_count": 10,
     "sample_count_multiple": 0.0005
-  }, 
+  },
+  "code": {
+    "pipeline_commit_sha": "75d1628a9bdef92d36a19459b7265605056dccff",
+    "pipeline_is_dirty": true,
+    "predictor_commit_sha": "14e6d17a0bee91c1bc4c7015723f247ed89eef3b",
+    "predictor_is_dirty": true
+  },
+  "confusion": {
+    "matrix_is_oob": false,
+    "matrix_str": "CV Accuracy 1:  99 1=99 2= 0 3= 0 4= 0 5= 0 6= 0 7= 0 ( 10247 total)\nCV Accuracy 2:  92 1= 0 2=92 3= 1 4= 1 5= 3 6= 0 7= 0 ( 136246 total)\nCV Accuracy 3:  86 1= 0 2= 1 3=86 4= 0 5= 9 6= 2 7= 0 ( 95497 total)\nCV Accuracy 4:  97 1= 0 2= 2 3= 0 4=97 5= 0 6= 0 7= 0 ( 119196 total)\nCV Accuracy 5:  86 1= 0 2= 2 3= 5 4= 0 5=86 6= 5 7= 0 ( 24516 total)\nCV Accuracy 6:  89 1= 0 2= 0 3= 3 4= 0 5= 4 6=89 7= 1 ( 36573 total)\nCV Accuracy 7:  92 1= 0 2= 0 3= 1 4= 0 5= 1 6= 4 7=92 ( 21341 total)"
+  },
+  "cv_sha256": "fd1fd70e48ccc0082292e521628321584273a928e411875a64e04777ed614b22",
   "data": {
-    "platform": "android", 
-    "sha256": "97dac6a53579c37ddf5409abf2ebdd9eca7fe5d1372b141110e54511705092ee", 
+    "platform": "android",
+    "sha256": "97dac6a53579c37ddf5409abf2ebdd9eca7fe5d1372b141110e54511705092ee",
     "split": false
-  }, 
-  "model_metadata_version": 1, 
+  },
+  "features": {
+    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
+    "count": 443616
+  },
+  "model_metadata_version": 1,
   "sampling": {
-    "sampling_rate_hz": 21.0, 
-    "sample_count": 64
+    "sample_count": 64,
+    "sampling_rate_hz": 21.0
   }
 }
