@@ -38,7 +38,7 @@ class RandomForestManager {
         
         let cConfigFilepath = configFilePath.cStringUsingEncoding(NSUTF8StringEncoding)
         
-        _ptr = createRandomForestManagerFromFiles(UnsafeMutablePointer(cConfigFilepath!))
+        _ptr = createRandomForestManagerFromFile(UnsafeMutablePointer(cConfigFilepath!))
         
         var modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
 

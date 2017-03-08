@@ -96,7 +96,7 @@ RandomForestManager *createRandomForestManagerFromJsonString(const char* jsonStr
     }
 }
 
-RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson)
+RandomForestManager *createRandomForestManagerFromFile(const char* pathToJson)
 {
     RandomForestConfiguration config;
     if (loadConfigurationFromJsonFile(&config, pathToJson)) {
