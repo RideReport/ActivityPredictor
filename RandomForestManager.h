@@ -25,7 +25,7 @@ extern "C" {
     RandomForestManager *createRandomForestManagerFromFile(const char* pathToJson);
     bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile);
     
-    float randomForestGetDesiredReadingDuration(RandomForestManager *r);
+    float randomForestGetDesiredSessionDuration(RandomForestManager *r);
     float randomForestGetDesiredSamplingInterval(RandomForestManager *r);
     const char* randomForestGetModelUniqueIdentifier(RandomForestManager *r);
 

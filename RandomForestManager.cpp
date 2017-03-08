@@ -127,7 +127,7 @@ float randomForestGetDesiredSamplingInterval(RandomForestManager *r) {
 /**
  * Minimum length of continuous readings, in seconds
  */
-float randomForestGetDesiredReadingDuration(RandomForestManager *r) {
+float randomForestGetDesiredSessionDuration(RandomForestManager *r) {
     // Desired duration is the difference between the time of the first
     // and the time of the last
     return (r->sampleCount - 1) / r->samplingRateHz;
