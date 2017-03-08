@@ -10,7 +10,7 @@
 extern "C" {
 #endif
     typedef struct FFTManager FFTManager;
-    FFTManager *createFFTManager(int sampleSize);
+    FFTManager *createFFTManager(int sampleCount);
     void deleteFFTManager(FFTManager *fftManager);
     
     void fft(FFTManager *manager, float * input, int inputSize, float *output);

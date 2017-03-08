@@ -22,12 +22,12 @@ extern "C" {
     typedef struct AccelerometerReading AccelerometerReading;
 
     RandomForestManager *createRandomForestManagerFromJsonString(const char* jsonString);
-    RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson, const char* pathToModelFile);
-    bool randomForestLoadModel(RandomForestManager *r);
+    RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson);
+    bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile);
+    
     float randomForestGetDesiredDuration(RandomForestManager *r);
     float randomForestGetDesiredSpacing(RandomForestManager *r);
-    const char* randomForestGetModelHash(RandomForestManager *r);
-    const char* randomForestGetDataHash(RandomForestManager *r);
+    const char* randomForestGetModelUniqueIdentifier(RandomForestManager *r);
 
     bool randomForestManagerCanPredict(RandomForestManager *r);
     void deleteRandomForestManager(RandomForestManager *r);

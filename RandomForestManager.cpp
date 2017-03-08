@@ -23,6 +23,8 @@
 #include <opencv2/ml/ml.hpp>
 #include <vector>
 #include <cmath>
+#include <fstream>
+#include "json/json.h"
 
 #include "Utility.h"
 
@@ -35,12 +37,19 @@
 using namespace cv;
 using namespace std;
 
+
+struct RandomForestConfiguration {
+    int sampleCount;
+    float samplingRateHz;
+    
+    string modelUID;
+};
+
 struct RandomForestManager {
     string modelPath;
-    string modelSha256;
-    string dataSha256;
+    string modelUID;
 
-    int sampleSize;
+    int sampleCount;
     float samplingRateHz;
 
     int fftIndex_below2_5hz;
@@ -55,49 +64,57 @@ struct RandomForestManager {
     cv::Ptr<cv::ml::RTrees> model;
 };
 
-RandomForestManager *createRandomForestManagerFromConfiguration(RFConfiguration* config, const char* pathToModelFile) {
+bool loadConfigurationFromString(RandomForestConfiguration* config, const char* jsonString);
+bool loadConfigurationFromJsonFile(RandomForestConfiguration* config, const char* pathToJson);
+void loadJson(char* pathToJson);
+
+RandomForestManager *createRandomForestManagerFromConfiguration(RandomForestConfiguration* config) {
     RandomForestManager *r = new RandomForestManager;
-    r->sampleSize = config->sampleSize;
+    r->sampleCount = config->sampleCount;
     r->samplingRateHz = config->samplingRateHz;
-    r->modelSha256 = config->modelSha256;
-    r->dataSha256 = config->dataSha256;
+    r->modelUID = config->modelUID;
 
-    assert(fmod(log2(r->sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
-
-    r->fftManager = createFFTManager(r->sampleSize);
-    if (pathToModelFile != NULL) {
-        r->modelPath = string(pathToModelFile);
-    }
+    r->fftManager = createFFTManager(r->sampleCount);
 
     float sampleSpacing = 1. / r->samplingRateHz;
-    r->fftIndex_below2_5hz = floorf(sampleSpacing * r->sampleSize * 2.5);
-    r->fftIndex_above2hz = ceilf(sampleSpacing * r->sampleSize * 2.0);
-    r->fftIndex_above3_5hz = ceilf(sampleSpacing * r->sampleSize * 3.5);
+    r->fftIndex_below2_5hz = floorf(sampleSpacing * r->sampleCount * 2.5);
+    r->fftIndex_above2hz = ceilf(sampleSpacing * r->sampleCount * 2.0);
+    r->fftIndex_above3_5hz = ceilf(sampleSpacing * r->sampleCount * 3.5);
 
-    r->differences = vector<float>(r->sampleSize);
+    r->differences = vector<float>(r->sampleCount);
 
     return r;
 }
 
 RandomForestManager *createRandomForestManagerFromJsonString(const char* jsonString) {
-    RFConfiguration config;
+    RandomForestConfiguration config;
     if (loadConfigurationFromString(&config, jsonString)) {
-        return createRandomForestManagerFromConfiguration(&config, NULL);
+        return createRandomForestManagerFromConfiguration(&config);
     }
     else {
         return NULL;
     }
 }
 
-RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson, const char* pathToModelFile)
+RandomForestManager *createRandomForestManagerFromFiles(const char* pathToJson)
 {
-    RFConfiguration config;
+    RandomForestConfiguration config;
     if (loadConfigurationFromJsonFile(&config, pathToJson)) {
-        return createRandomForestManagerFromConfiguration(&config, pathToModelFile);
+        return createRandomForestManagerFromConfiguration(&config);
     }
     else {
         return NULL;
     }
+}
+
+bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile) {
+    if (pathToModelFile == NULL) {
+        return false;
+    }
+    r->modelPath = string(pathToModelFile);
+    
+    r->model = cv::ml::RTrees::load<cv::ml::RTrees>(r->modelPath);
+    return true;
 }
 
 /**
@@ -113,23 +130,11 @@ float randomForestGetDesiredSpacing(RandomForestManager *r) {
 float randomForestGetDesiredDuration(RandomForestManager *r) {
     // Desired duration is the difference between the time of the first
     // and the time of the last
-    return (r->sampleSize - 1) / r->samplingRateHz;
+    return (r->sampleCount - 1) / r->samplingRateHz;
 }
 
-const char* randomForestGetModelHash(RandomForestManager *r) {
-    return r->modelSha256.c_str();
-}
-
-const char* randomForestGetDataHash(RandomForestManager *r) {
-    return r->dataSha256.c_str();
-}
-
-bool randomForestLoadModel(RandomForestManager *r) {
-    if (r->modelPath.empty()) {
-        return false;
-    }
-    r->model = cv::ml::RTrees::load<cv::ml::RTrees>(r->modelPath);
-    return true;
+const char* randomForestGetModelUniqueIdentifier(RandomForestManager *r) {
+    return r->modelUID.c_str();
 }
 
 bool randomForestManagerCanPredict(RandomForestManager *r) {
@@ -160,17 +165,17 @@ void deleteRandomForestManager(RandomForestManager *r)
 void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
     LOCAL_TIMING_START();
 
-    cv::Mat mags = cv::Mat(randomForestManager->sampleSize, 1, CV_32F, accelerometerVector);
+    cv::Mat mags = cv::Mat(randomForestManager->sampleCount, 1, CV_32F, accelerometerVector);
 
     cv::Scalar meanMag,stddevMag;
     meanStdDev(mags,meanMag,stddevMag);
 
-    float *fftOutput = new float[randomForestManager->sampleSize];
+    float *fftOutput = new float[randomForestManager->sampleCount];
 
-    fft(randomForestManager->fftManager, accelerometerVector, randomForestManager->sampleSize, fftOutput);
-    float maxPower = dominantPower(fftOutput, randomForestManager->sampleSize);
+    fft(randomForestManager->fftManager, accelerometerVector, randomForestManager->sampleCount, fftOutput);
+    float maxPower = dominantPower(fftOutput, randomForestManager->sampleCount);
 
-    int spectrumLength = randomForestManager->sampleSize / 2; // exclude nyquist frequency
+    int spectrumLength = randomForestManager->sampleCount / 2; // exclude nyquist frequency
     vector<float> spectrum (fftOutput, fftOutput + spectrumLength);
     float fftIntegral = trapezoidArea(spectrum.begin() + 1, spectrum.end()); // exclude DC / 0Hz power
 
@@ -187,10 +192,10 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[6] = maxPower;
     features[7] = fftIntegral;
     features[8] = fftIntegralBelow2_5hz;
-    features[9] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.25);
-    features[10] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.5);
-    features[11] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.75);
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleSize, 0.9);
+    features[9] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
+    features[10] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
+    features[11] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
+    features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
 
     LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
@@ -222,7 +227,7 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
-    if (readingCount < 4) {
+    if (readingCount < 1) {
         return false;
     }
 
@@ -266,10 +271,10 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
     bool successful = false;
 
     if (prepareNormsAndSeconds(readings, norms, seconds, readingCount)) {
-        float* resampledNorms = new float[randomForestManager->sampleSize];
+        float* resampledNorms = new float[randomForestManager->sampleCount];
         float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
-        successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleSize, newSpacing, offsetSeconds);
+        successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
         if (successful) {
             calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
         }
@@ -301,4 +306,65 @@ int randomForestGetClassCount(RandomForestManager *randomForestManager) {
 
     Mat labelsMat = randomForestManager->model->getClassLabels();
     return labelsMat.rows;
+}
+
+void loadConfigurationFromJsonValue(RandomForestConfiguration* config, Json::Value root) {
+    if (root["model_metadata_version"].asInt() > 1) {
+        throw std::runtime_error("Unsupported value for model_metadata_version");
+    }
+    
+    Json::Value sampleCount = root["sampling"]["sample_count"];
+    if (sampleCount.isNull() || !sampleCount.isInt()) {
+        throw std::runtime_error("Unacceptable sample_count");
+    }
+    
+    config->sampleCount = sampleCount.asInt();
+    if (fmod(log2(config->sampleCount), 1.0) != 0.0) {
+        throw std::runtime_error("sampleCount must be a power of 2");
+    }
+    
+    Json::Value samplingRateHz = root["sampling"]["sampling_rate_hz"];
+    if (samplingRateHz.isNull() || !samplingRateHz.isNumeric()) {
+        throw std::runtime_error("Unsupported sampling_rate_hz");
+    }
+    config->samplingRateHz = samplingRateHz.asFloat();
+    
+    // This field is optional in the case where we are training a new model; returns empty string if not present
+    config->modelUID = root["cv_sha256"].asString();
+}
+
+bool loadConfigurationFromString(RandomForestConfiguration* config, const char* jsonString) {
+    stringstream ss(jsonString);
+    Json::Value root;
+    ss >> root;
+    try {
+        loadConfigurationFromJsonValue(config, root);
+    }
+    catch (std::runtime_error& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    catch (std::exception& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    return true;
+}
+
+bool loadConfigurationFromJsonFile(RandomForestConfiguration* config, const char* pathToJson) {
+    try {
+        ifstream doc(pathToJson, ifstream::binary);
+        Json::Value root;
+        doc >> root;
+        loadConfigurationFromJsonValue(config, root);
+    }
+    catch (std::runtime_error& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    catch (std::exception& e) {
+        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
+        return false;
+    }
+    return true;
 }

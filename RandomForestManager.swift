@@ -32,10 +32,31 @@ class RandomForestManager {
     }
     
     func startup() {
-        let path = NSBundle(forClass: self.dynamicType).pathForResource("forest.cv", ofType: nil)
-        let cpath = path?.cStringUsingEncoding(NSUTF8StringEncoding)
+        guard let configFilePath = NSBundle(forClass: self.dynamicType).pathForResource("model.ios.cv.json", ofType: nil) else {
+            return
+        }
         
-        _ptr = createRandomForestManager(Int32(MotionManager.sampleWindowSize), Int32(1/MotionManager.updateInterval), UnsafeMutablePointer(cpath!))
+        let cConfigFilepath = configFilePath.cStringUsingEncoding(NSUTF8StringEncoding)
+        
+        _ptr = createRandomForestManagerFromFiles(UnsafeMutablePointer(cConfigFilepath!))
+        
+        var modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
+
+        let modelUID =  withUnsafePointer(&modelUIDCString) {
+            String.fromCString(UnsafePointer($0))!
+        }
+        
+        guard modelUID.characters.count > 0  else {
+            return;
+        }
+        
+        guard let modelPath = NSBundle(forClass: self.dynamicType).pathForResource(String(format: "%@.cv", modelUID), ofType: nil) else {
+            return;
+        }
+        
+        let cModelpath = modelPath.cStringUsingEncoding(NSUTF8StringEncoding)
+        randomForestLoadModel(_ptr, UnsafeMutablePointer(cModelpath!))
+        
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))

@@ -3,71 +3,8 @@
 #include "Utility.h"
 
 #include <iostream>
-#include <fstream>
 
 using namespace std;
-
-void loadConfigurationFromJsonValue(RFConfiguration* config, Json::Value root) {
-    if (root["model_metadata_version"].asInt() > 1) {
-        throw std::runtime_error("Unsupported value for model_metadata_version");
-    }
-
-    Json::Value sampleCount = root["sampling"]["sample_count"];
-    if (sampleCount.isNull() || !sampleCount.isInt()) {
-        throw std::runtime_error("Unacceptable sample_count");
-    }
-
-    config->sampleSize = sampleCount.asInt();
-    if (fmod(log2(config->sampleSize), 1.0) != 0.0) {
-        throw std::runtime_error("sampleCount must be a power of 2");
-    }
-
-    Json::Value samplingRateHz = root["sampling"]["sampling_rate_hz"];
-    if (samplingRateHz.isNull() || !samplingRateHz.isNumeric()) {
-        throw std::runtime_error("Unsupported sampling_rate_hz");
-    }
-    config->samplingRateHz = samplingRateHz.asFloat();
-
-    // This is an optional field; returns empty string if not present
-    config->modelSha256 = root["cv_sha256"].asString();
-    config->dataSha256 = root["data"]["sha256"].asString();
-}
-
-bool loadConfigurationFromString(RFConfiguration* config, const char* jsonString) {
-    stringstream ss(jsonString);
-    Json::Value root;
-    ss >> root;
-    try {
-        loadConfigurationFromJsonValue(config, root);
-    }
-    catch (std::runtime_error& e) {
-        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
-        return false;
-    }
-    catch (std::exception& e) {
-        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
-        return false;
-    }
-    return true;
-}
-
-bool loadConfigurationFromJsonFile(RFConfiguration* config, const char* pathToJson) {
-    try {
-        ifstream doc(pathToJson, ifstream::binary);
-        Json::Value root;
-        doc >> root;
-        loadConfigurationFromJsonValue(config, root);
-    }
-    catch (std::runtime_error& e) {
-        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
-        return false;
-    }
-    catch (std::exception& e) {
-        cerr << "ActivityPredictor/Utility.cpp:" << __LINE__ << ": Failed to load configuration: " << e.what() << endl;
-        return false;
-    }
-    return true;
-}
 
 // spline interpolator from:
 // http://blog.ivank.net/interpolation-with-cubic-splines.html
@@ -105,8 +42,7 @@ void solveTDMatrixThomas(cv::Mat A, float* x) {
     //
     // The first `A.rows` columns of parameter A are the matrix A; the last
     // column is the result vector b.
-    // printMatrix(A);
-    // printVector(x, A.rows);
+    
     cv::Mat d = A.col(A.rows);
 
     int n = A.rows;
@@ -129,13 +65,9 @@ void solveTDMatrixThomas(cv::Mat A, float* x) {
     for (int k = n-2; k >= 0; k--) {
         x[k] = (d.at<float>(k) - A.at<float>(k, k+1) * x[k+1]) / A.at<float>(k, k);
     }
-    // printMatrix(A);
-    // printVector(x, A.rows);
 }
 
 void solveMatrixGaussJordan(cv::Mat A, float* x) {
-    // printMatrix(A);
-    // printVector(x, A.rows);
     int rows = A.rows;
     for(int k=0; k<rows; k++)	// column
     {
@@ -172,7 +104,6 @@ void solveMatrixGaussJordan(cv::Mat A, float* x) {
 			A.at<float>(j, i) = 0;
 		}
 	}
-    // printVector(x, A.rows);
 }
 
 
@@ -225,6 +156,13 @@ float evaluateSpline(float x, float* xs, float *ys, float *ks)
 
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
     LOCAL_TIMING_START();
+    
+    if (inputLength < 4) {
+        // getNaturalKs may fail without inputLength of at least 4
+        
+        return false;
+    }
+    
     float ks[inputLength];
     float maxX = inputX[inputLength-1];
 

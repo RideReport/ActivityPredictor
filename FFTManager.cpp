@@ -14,13 +14,13 @@ struct FFTManager {
     FFTSetup fftWeights;
 };
 
-FFTManager *createFFTManager(int sampleSize)
+FFTManager *createFFTManager(int sampleCount)
 {
-//    assert(fmod(log2(sampleSize), 1.0) == 0.0); // sampleSize must be a power of 2
+//    assert(fmod(log2(sampleCount), 1.0) == 0.0); // sampleCount must be a power of 2
 
     struct FFTManager *f;
     f = (struct FFTManager*) malloc(sizeof(struct FFTManager));
-    f->fftWeights = vDSP_create_fftsetup(vDSP_Length(log2f(sampleSize)), FFT_RADIX2);
+    f->fftWeights = vDSP_create_fftsetup(vDSP_Length(log2f(sampleCount)), FFT_RADIX2);
 
     return f;
 }
