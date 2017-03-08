@@ -18,9 +18,9 @@ class RandomForestManager {
         }
     }
     
-    var desiredReadingDuration: NSTimeInterval {
+    var desiredSessionDuration: NSTimeInterval {
         get {
-            return Double(randomForestGetDesiredReadingDuration(_ptr))
+            return Double(randomForestGetDesiredSessionDuration(_ptr))
         }
     }
     
