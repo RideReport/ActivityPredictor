@@ -32,7 +32,7 @@ class RandomForestManager {
     }
     
     func startup() {
-        guard let configFilePath = NSBundle(forClass: self.dynamicType).pathForResource("model.ios.cv.json", ofType: nil) else {
+        guard let configFilePath = NSBundle(forClass: self.dynamicType).pathForResource("config.json", ofType: nil) else {
             return
         }
         
