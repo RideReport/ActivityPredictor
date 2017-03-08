@@ -319,7 +319,7 @@ void loadConfigurationFromJsonValue(RandomForestConfiguration* config, Json::Val
     }
     
     config->sampleCount = sampleCount.asInt();
-    if (fmod(log2(config->sampleCount), 1.0) != 0.0) {
+    if (fmod(log(config->sampleCount)/log(2), 1.0) != 0.0) {
         throw std::runtime_error("sampleCount must be a power of 2");
     }
     
