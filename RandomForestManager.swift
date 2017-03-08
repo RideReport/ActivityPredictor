@@ -42,16 +42,16 @@ class RandomForestManager {
         
         var modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
 
-        let modelUID =  withUnsafePointer(&modelUIDCString) {
-            String.fromCString(UnsafePointer($0))!
+        guard let modelUID = String.fromCString(UnsafePointer(modelUIDCString)) else {
+            return
         }
         
         guard modelUID.characters.count > 0  else {
-            return;
+            return
         }
         
         guard let modelPath = NSBundle(forClass: self.dynamicType).pathForResource(String(format: "%@.cv", modelUID), ofType: nil) else {
-            return;
+            return
         }
         
         let cModelpath = modelPath.cStringUsingEncoding(NSUTF8StringEncoding)
