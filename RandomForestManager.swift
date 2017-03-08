@@ -24,6 +24,10 @@ class RandomForestManager {
         }
     }
     
+    var canPredict: Bool {
+        return randomForestManagerCanPredict(_ptr)
+    }
+    
     struct Static {
         static var onceToken : dispatch_once_t = 0
         static var sharedManager : RandomForestManager?
