@@ -7,7 +7,7 @@
 //
 
 #define RANDOM_FOREST_VECTOR_SIZE (13)
-#define RANDOM_FOREST_SAMPLING_RATE_HZ 20f
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,8 +25,8 @@ extern "C" {
     RandomForestManager *createRandomForestManagerFromFile(const char* pathToJson);
     bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile);
     
-    float randomForestGetDesiredDuration(RandomForestManager *r);
-    float randomForestGetDesiredSpacing(RandomForestManager *r);
+    float randomForestGetDesiredReadingDuration(RandomForestManager *r);
+    float randomForestGetDesiredSamplingInterval(RandomForestManager *r);
     const char* randomForestGetModelUniqueIdentifier(RandomForestManager *r);
 
     bool randomForestManagerCanPredict(RandomForestManager *r);

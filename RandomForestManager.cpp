@@ -120,14 +120,14 @@ bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile) 
 /**
  * Maximum spacing between accelerometer readings, in seconds
  */
-float randomForestGetDesiredSpacing(RandomForestManager *r) {
+float randomForestGetDesiredSamplingInterval(RandomForestManager *r) {
     return 1. / r->samplingRateHz;
 }
 
 /**
  * Minimum length of continuous readings, in seconds
  */
-float randomForestGetDesiredDuration(RandomForestManager *r) {
+float randomForestGetDesiredReadingDuration(RandomForestManager *r) {
     // Desired duration is the difference between the time of the first
     // and the time of the last
     return (r->sampleCount - 1) / r->samplingRateHz;

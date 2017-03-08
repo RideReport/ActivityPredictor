@@ -12,6 +12,17 @@ class RandomForestManager {
     var _ptr: COpaquePointer!
     var classLables: [Int32]!
     var classCount = 0
+    var desiredSampleInterval: NSTimeInterval {
+        get {
+            return Double(randomForestGetDesiredSamplingInterval(_ptr))
+        }
+    }
+    
+    var desiredReadingDuration: NSTimeInterval {
+        get {
+            return Double(randomForestGetDesiredReadingDuration(_ptr))
+        }
+    }
     
     struct Static {
         static var onceToken : dispatch_once_t = 0
@@ -31,7 +42,7 @@ class RandomForestManager {
         }
     }
     
-    func startup() {
+    init () {
         guard let configFilePath = NSBundle(forClass: self.dynamicType).pathForResource("config.json", ofType: nil) else {
             return
         }
@@ -39,8 +50,14 @@ class RandomForestManager {
         let cConfigFilepath = configFilePath.cStringUsingEncoding(NSUTF8StringEncoding)
         
         _ptr = createRandomForestManagerFromFile(UnsafeMutablePointer(cConfigFilepath!))
-        
-        var modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
+    }
+    
+    deinit {
+        deleteRandomForestManager(_ptr)
+    }
+    
+    func startup() {
+        let modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
 
         guard let modelUID = String.fromCString(UnsafePointer(modelUIDCString)) else {
             return
@@ -60,10 +77,6 @@ class RandomForestManager {
         self.classCount = Int(randomForestGetClassCount(_ptr))
         self.classLables = [Int32](count:self.classCount, repeatedValue:0)
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
-    }
-    
-    deinit {
-        deleteRandomForestManager(_ptr)
     }
 
     private func accelerometerReadings(forSensorData sensorData:NSOrderedSet)->[AccelerometerReading] {
