@@ -1,28 +1,28 @@
 {
   "builder": {
-    "active_var_count": 4,
+    "active_var_count": 10,
     "epsilon": 1e-05,
     "max_tree_count": 6,
-    "sample_count_multiple": 1e-05
+    "sample_count_multiple": 0.001
   },
   "code": {
     "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "b2dae47d6550c28ac8d0ee2cd9aede36f8ce77d6",
+    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
     "predictor_is_dirty": true
   },
-  "cv_sha256": "6daed8a3d45473790f48d7e948e902085ae8f903738a8c486dc3f150fbb00df4",
+  "cv_sha256": "615413bf2d47d0571a85758109eb8c63e0559a16192f701898de69c166c3fa18",
   "data": {
-    "sha256": "073fec110edc43b52c61841093a62918a4cbb1ce03d3f77383b821cb66f316c9"
+    "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
   },
   "extra": {
-    "include_crowd_data": true,
+    "include_crowd_data": false,
     "platform": "android",
     "split": false
   },
   "features": {
     "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 453602
+    "count": 433369
   },
   "model_metadata_version": 1,
   "sampling": {
