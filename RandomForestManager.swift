@@ -9,16 +9,18 @@
 import Foundation
 
 class RandomForestManager {
-    var _ptr: COpaquePointer!
+    static private(set) var shared : RandomForestManager!
+    
+    var _ptr: OpaquePointer!
     var classLables: [Int32]!
     var classCount = 0
-    var desiredSampleInterval: NSTimeInterval {
+    var desiredSampleInterval: TimeInterval {
         get {
             return Double(randomForestGetDesiredSamplingInterval(_ptr))
         }
     }
     
-    var desiredSessionDuration: NSTimeInterval {
+    var desiredSessionDuration: TimeInterval {
         get {
             return Double(randomForestGetDesiredSessionDuration(_ptr))
         }
@@ -28,32 +30,23 @@ class RandomForestManager {
         return randomForestManagerCanPredict(_ptr)
     }
     
-    struct Static {
-        static var onceToken : dispatch_once_t = 0
-        static var sharedManager : RandomForestManager?
-    }
-    
-    class var sharedForest:RandomForestManager {
-        return Static.sharedManager!
-    }
-    
     class func startup() {
-        if (Static.sharedManager == nil) {
-            Static.sharedManager = RandomForestManager()
-            dispatch_async(dispatch_get_main_queue()) {
-                Static.sharedManager?.startup()
+        if (RandomForestManager.shared == nil) {
+            RandomForestManager.shared = RandomForestManager()
+            DispatchQueue.main.async {
+                RandomForestManager.shared.startup()
             }
         }
     }
     
     init () {
-        guard let configFilePath = NSBundle(forClass: self.dynamicType).pathForResource("config.json", ofType: nil) else {
+        guard let configFilePath = Bundle(for: type(of: self)).path(forResource: "config.json", ofType: nil) else {
             return
         }
         
-        let cConfigFilepath = configFilePath.cStringUsingEncoding(NSUTF8StringEncoding)
+        let cConfigFilepath = configFilePath.cString(using: String.Encoding.utf8)
         
-        _ptr = createRandomForestManagerFromFile(UnsafeMutablePointer(cConfigFilepath!))
+        _ptr = createRandomForestManagerFromFile(UnsafeMutablePointer(mutating: cConfigFilepath!))
     }
     
     deinit {
@@ -61,26 +54,26 @@ class RandomForestManager {
     }
     
     func startup() {
-        let modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr)
-
-        guard let modelUID = String.fromCString(UnsafePointer(modelUIDCString)) else {
+        guard let modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr) else {
             return
         }
+
+        let modelUID = String(cString: modelUIDCString)
         
         guard modelUID.characters.count > 0  else {
             return
         }
         
-        guard let modelPath = NSBundle(forClass: self.dynamicType).pathForResource(String(format: "%@.cv", modelUID), ofType: nil) else {
+        guard let modelPath = Bundle(for: type(of: self)).path(forResource: String(format: "%@.cv", modelUID), ofType: nil) else {
             return
         }
         
-        let cModelpath = modelPath.cStringUsingEncoding(NSUTF8StringEncoding)
-        randomForestLoadModel(_ptr, UnsafeMutablePointer(cModelpath!))
+        let cModelpath = modelPath.cString(using: String.Encoding.utf8)
+        randomForestLoadModel(_ptr, UnsafeMutablePointer(mutating: cModelpath!))
         
         self.classCount = Int(randomForestGetClassCount(_ptr))
-        self.classLables = [Int32](count:self.classCount, repeatedValue:0)
-        randomForestGetClassLabels(_ptr, UnsafeMutablePointer(self.classLables), Int32(self.classCount))
+        self.classLables = [Int32](repeating: 0, count: self.classCount)
+        randomForestGetClassLabels(_ptr, UnsafeMutablePointer(mutating: self.classLables), Int32(self.classCount))
     }
 
     private func accelerometerReadings(forSensorData sensorData:NSOrderedSet)->[AccelerometerReading] {
@@ -95,20 +88,20 @@ class RandomForestManager {
         return readings
     }
     
-    func classify(sensorDataCollection: SensorDataCollection)
+    func classify(_ sensorDataCollection: SensorDataCollection)
     {
         let accelVector = self.accelerometerReadings(forSensorData: sensorDataCollection.accelerometerAccelerations)
-        let confidences = [Float](count:self.classCount, repeatedValue:0.0)
+        let confidences = [Float](repeating: 0.0, count: self.classCount)
         
-        randomForestClassifyAccelerometerSignal(_ptr, UnsafeMutablePointer(accelVector), Int32(accelVector.count), UnsafeMutablePointer(confidences), Int32(self.classCount))
+        randomForestClassifyAccelerometerSignal(_ptr, UnsafeMutablePointer(mutating: accelVector), Int32(accelVector.count), UnsafeMutablePointer(mutating: confidences), Int32(self.classCount))
         
         var classConfidences: [Int: Float] = [:]
     
-        for (i, score) in confidences.enumerate() {
+        for (i, score) in confidences.enumerated() {
             classConfidences[Int(classLables[i])] = score
         }
 
         sensorDataCollection.setActivityTypePredictions(forClassConfidences: classConfidences)
-        CoreDataManager.sharedManager.saveContext()
+        CoreDataManager.shared.saveContext()
     }
 }
