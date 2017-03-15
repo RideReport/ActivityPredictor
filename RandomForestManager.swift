@@ -9,6 +9,8 @@
 import Foundation
 
 class RandomForestManager {
+    private var modelIdentifier: String?
+
     static private(set) var shared : RandomForestManager!
     
     var _ptr: OpaquePointer!
@@ -58,13 +60,16 @@ class RandomForestManager {
             return
         }
 
-        let modelUID = String(cString: modelUIDCString)
-        
-        guard modelUID.characters.count > 0  else {
+        modelIdentifier = String(cString: modelUIDCString)
+        guard let modelID = modelIdentifier else {
             return
         }
         
-        guard let modelPath = Bundle(for: type(of: self)).path(forResource: String(format: "%@.cv", modelUID), ofType: nil) else {
+        guard modelID.characters.count > 0  else {
+            return
+        }
+        
+        guard let modelPath = Bundle(for: type(of: self)).path(forResource: String(format: "%@.cv", modelID), ofType: nil) else {
             return
         }
         
@@ -101,6 +106,7 @@ class RandomForestManager {
             classConfidences[Int(classLables[i])] = score
         }
 
+        sensorDataCollection.activityPredictionModelIdentifier = modelIdentifier
         sensorDataCollection.setActivityTypePredictions(forClassConfidences: classConfidences)
         CoreDataManager.shared.saveContext()
     }
