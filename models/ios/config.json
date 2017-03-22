@@ -1,19 +1,19 @@
 {
   "builder": {
-    "active_var_count": 10,
-    "epsilon": 1e-05,
-    "max_tree_count": 6,
-    "sample_count_multiple": 0.001
+    "active_var_count": 0,
+    "epsilon": 0.0001,
+    "max_tree_count": 10,
+    "sample_count_multiple": 0.0001
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "f2ddab6b2d19f841aaa965f15b8ff577acf77698",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
-    "predictor_is_dirty": true
+    "predictor_commit_sha": "206e16c3bd850264149711efd399df95ca6ddde7",
+    "predictor_is_dirty": false
   },
-  "cv_sha256": "615413bf2d47d0571a85758109eb8c63e0559a16192f701898de69c166c3fa18",
+  "cv_sha256": "193e23221eccbd193d61ae6be8cbf6291ce40d90f1fdd7caa8111e3dff125859",
   "data": {
-    "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
+    "sha256": "97dac6a53579c37ddf5409abf2ebdd9eca7fe5d1372b141110e54511705092ee"
   },
   "extra": {
     "include_crowd_data": false,
@@ -22,7 +22,7 @@
   },
   "features": {
     "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "count": 443616
   },
   "model_metadata_version": 1,
   "sampling": {
