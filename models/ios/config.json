@@ -1,28 +1,28 @@
 {
   "builder": {
-    "active_var_count": 10,
-    "epsilon": 1e-05,
-    "max_tree_count": 6,
-    "sample_count_multiple": 0.001
+    "active_var_count": 0,
+    "epsilon": 0.0001,
+    "max_tree_count": 10,
+    "sample_count_multiple": 0.0005
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "f2ddab6b2d19f841aaa965f15b8ff577acf77698",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
-    "predictor_is_dirty": true
+    "predictor_commit_sha": "c1d75fa827f14289ec6c099f69e51a7940c86d11",
+    "predictor_is_dirty": false
   },
-  "cv_sha256": "615413bf2d47d0571a85758109eb8c63e0559a16192f701898de69c166c3fa18",
+  "cv_sha256": "44a5d76c623fcfb75090ab383474413fbdb5a5c290c18fe85316ec7e9cd90cd6",
   "data": {
-    "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
+    "sha256": "97dac6a53579c37ddf5409abf2ebdd9eca7fe5d1372b141110e54511705092ee"
   },
   "extra": {
     "include_crowd_data": false,
-    "platform": "android",
+    "platform": "ios",
     "split": false
   },
   "features": {
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
+    "count": 441336
   },
   "model_metadata_version": 1,
   "sampling": {

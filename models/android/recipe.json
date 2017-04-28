@@ -1,15 +1,15 @@
 {
   "builder": {
-    "active_var_count": 10,
-    "epsilon": 1e-05,
-    "max_tree_count": 6,
-    "sample_count_multiple": 0.001
+    "active_var_count": 0,
+    "epsilon": 0.0001,
+    "max_tree_count": 10,
+    "sample_count_multiple": 0.0005
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "f2ddab6b2d19f841aaa965f15b8ff577acf77698",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
-    "predictor_is_dirty": false
+    "predictor_commit_sha": "c1d75fa827f14289ec6c099f69e51a7940c86d11",
+    "predictor_is_dirty": true
   },
   "confusion": {
     "matrix_features_id": [
@@ -386,6 +386,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 8462,
+        "pk": "77",
+        "startIndex": 7253,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 74,
         "pk": "42",
         "startIndex": 0,
@@ -764,6 +770,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 9671,
+        "pk": "77",
+        "startIndex": 8462,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 6047,
         "pk": "40",
         "startIndex": 4837,
@@ -887,6 +899,12 @@
         "endIndex": 5066,
         "pk": "16",
         "startIndex": 3842,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 7253,
+        "pk": "77",
+        "startIndex": 6044,
         "type": "ciSample"
       },
       {
@@ -1037,6 +1055,12 @@
         "endIndex": 3310,
         "pk": "26",
         "startIndex": 2065,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 4835,
+        "pk": "77",
+        "startIndex": 3627,
         "type": "ciSample"
       },
       {
@@ -1247,6 +1271,12 @@
         "endIndex": 1500,
         "pk": "39",
         "startIndex": 269,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 3627,
+        "pk": "77",
+        "startIndex": 2418,
         "type": "ciSample"
       },
       {
@@ -1817,6 +1847,12 @@
         "endIndex": 23895,
         "pk": "59",
         "startIndex": 22681,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 1209,
+        "pk": "77",
+        "startIndex": 0,
         "type": "ciSample"
       },
       {
@@ -2474,6 +2510,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 2418,
+        "pk": "77",
+        "startIndex": 1209,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 475,
         "pk": "14",
         "startIndex": 0,
@@ -2681,6 +2723,12 @@
         "endIndex": 1682,
         "pk": "68",
         "startIndex": 473,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 10796,
+        "pk": "77",
+        "startIndex": 9671,
         "type": "ciSample"
       },
       {
@@ -2930,6 +2978,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 6044,
+        "pk": "77",
+        "startIndex": 4835,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 5648,
         "pk": "67",
         "startIndex": 4438,
@@ -2955,7 +3009,7 @@
       }
     ],
     "matrix_is_oob": false,
-    "matrix_str": "CV Accuracy 2:  91 2=91 3= 2 4= 2 5= 4 6= 0 7= 0 ( 136246 total)\nCV Accuracy 3:  85 2= 2 3=85 4= 0 5= 9 6= 2 7= 0 ( 95497 total)\nCV Accuracy 4:  96 2= 3 3= 0 4=96 5= 0 6= 0 7= 0 ( 119196 total)\nCV Accuracy 5:  82 2= 3 3= 7 4= 0 5=82 6= 5 7= 0 ( 24516 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 6 6=86 7= 2 ( 36573 total)\nCV Accuracy 7:  90 2= 0 3= 1 4= 0 5= 2 6= 5 7=90 ( 21341 total)"
+    "matrix_str": "CV Accuracy 1:  99 1=99 2= 0 3= 0 4= 0 5= 0 6= 0 7= 0 ( 10205 total)\nCV Accuracy 2:  91 1= 0 2=91 3= 1 4= 1 5= 4 6= 0 7= 0 ( 135593 total)\nCV Accuracy 3:  85 1= 0 2= 1 3=85 4= 0 5= 9 6= 2 7= 0 ( 95027 total)\nCV Accuracy 4:  97 1= 0 2= 2 3= 0 4=97 5= 0 6= 0 7= 0 ( 118617 total)\nCV Accuracy 5:  83 1= 0 2= 2 3= 7 4= 0 5=83 6= 5 7= 1 ( 24337 total)\nCV Accuracy 6:  86 1= 0 2= 0 3= 4 4= 0 5= 5 6=86 7= 2 ( 36321 total)\nCV Accuracy 7:  92 1= 0 2= 0 3= 1 4= 0 5= 1 6= 4 7=92 ( 21236 total)"
   },
   "cv": {
     "opencv_ml_rtrees": {
@@ -2985,10 +3039,19 @@
         0,
         0,
         0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0
       ],
       "cat_var_count": 1,
       "class_labels": [
+        1,
         2,
         3,
         4,
@@ -3013,35 +3076,40 @@
         0.0,
         0.0,
         0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "ntrees": 6,
-      "oob_error": 0.111831869510665,
-      "ord_var_count": 13,
+      "oob_error": 0.10421918821462693,
+      "ord_var_count": 17,
       "training_params": {
         "cross_validation_folds": 0,
         "max_categories": 10,
         "max_depth": 25,
-        "min_sample_count": 433,
+        "min_sample_count": 441,
         "nactive_vars": 10,
         "priors": {
           "cols": 1,
           "data": [
-            0.10548925640544644,
-            0.15050199721683882,
-            0.1205786203246456,
-            0.5862493566738642,
-            0.392980866437439,
-            0.6734684048646481
+            0.8137073821060776,
+            0.0612412427956644,
+            0.08738446793429785,
+            0.07000584936722834,
+            0.3412040857292403,
+            0.22862486810364588,
+            0.3910286228288059
           ],
           "dt": "d",
-          "rows": 6
+          "rows": 7
         },
         "regression_accuracy": 0.0,
         "use_surrogates": 0
       },
-      "var_all": 14,
-      "var_count": 13,
+      "var_all": 18,
+      "var_count": 17,
       "var_idx": [
         0,
         1,
@@ -3055,24 +3123,36 @@
         9,
         10,
         11,
-        12
+        12,
+        13,
+        14,
+        15,
+        16
       ],
       "var_importance": [
-        0.0484278388,
-        0.117181078,
-        0.0669103637,
-        0.211898997,
-        0.00650600716,
-        0.00652084406,
-        0.0429381616,
-        0.0635398999,
-        0.120866828,
-        0.128646955,
-        0.0341095552,
-        0.0632085428,
-        0.0892449319
+        0.0431827083,
+        0.0891022459,
+        0.0536498651,
+        0.171703964,
+        0.0056843576,
+        0.00569766434,
+        0.0410979278,
+        0.00568712968,
+        0.0183322188,
+        0.0191833209,
+        0.0575239025,
+        0.037817169,
+        0.115716487,
+        0.114146799,
+        0.0259904657,
+        0.0737852007,
+        0.121698588
       ],
       "var_type": [
+        0,
+        0,
+        0,
+        0,
         0,
         0,
         0,
@@ -3090,7 +3170,7 @@
       ]
     }
   },
-  "cv_sha256": "56e07b88eefae613b2d01da848d72daa3958d80050cbb30cc8b39990ee7ede68",
+  "cv_sha256": "a015f75837dfbdc7eeb4a1b82e6b2fb1f31a46daa360af3e2dc3d1011f27bb90",
   "data": {
     "id": [
       {
@@ -3466,6 +3546,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 8462,
+        "pk": "77",
+        "startIndex": 7253,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 74,
         "pk": "42",
         "startIndex": 0,
@@ -3844,6 +3930,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 9671,
+        "pk": "77",
+        "startIndex": 8462,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 6047,
         "pk": "40",
         "startIndex": 4837,
@@ -3967,6 +4059,12 @@
         "endIndex": 5066,
         "pk": "16",
         "startIndex": 3842,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 7253,
+        "pk": "77",
+        "startIndex": 6044,
         "type": "ciSample"
       },
       {
@@ -4117,6 +4215,12 @@
         "endIndex": 3310,
         "pk": "26",
         "startIndex": 2065,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 4835,
+        "pk": "77",
+        "startIndex": 3627,
         "type": "ciSample"
       },
       {
@@ -4327,6 +4431,12 @@
         "endIndex": 1500,
         "pk": "39",
         "startIndex": 269,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 3627,
+        "pk": "77",
+        "startIndex": 2418,
         "type": "ciSample"
       },
       {
@@ -4897,6 +5007,12 @@
         "endIndex": 23895,
         "pk": "59",
         "startIndex": 22681,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 1209,
+        "pk": "77",
+        "startIndex": 0,
         "type": "ciSample"
       },
       {
@@ -5554,6 +5670,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 2418,
+        "pk": "77",
+        "startIndex": 1209,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 475,
         "pk": "14",
         "startIndex": 0,
@@ -5761,6 +5883,12 @@
         "endIndex": 1682,
         "pk": "68",
         "startIndex": 473,
+        "type": "ciSample"
+      },
+      {
+        "endIndex": 10796,
+        "pk": "77",
+        "startIndex": 9671,
         "type": "ciSample"
       },
       {
@@ -6010,6 +6138,12 @@
         "type": "ciSample"
       },
       {
+        "endIndex": 6044,
+        "pk": "77",
+        "startIndex": 4835,
+        "type": "ciSample"
+      },
+      {
         "endIndex": 5648,
         "pk": "67",
         "startIndex": 4438,
@@ -6034,7 +6168,7 @@
         "type": "ciSample"
       }
     ],
-    "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
+    "sha256": "97dac6a53579c37ddf5409abf2ebdd9eca7fe5d1372b141110e54511705092ee"
   },
   "extra": {
     "include_crowd_data": false,
@@ -6042,8 +6176,8 @@
     "split": false
   },
   "features": {
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
+    "count": 441336
   },
   "model_metadata_version": 1,
   "sampling": {
