@@ -195,14 +195,20 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[5] = (float)kurtosis(mags);
     features[6] = firstHarmonicPower;
     features[7] = indexOfFirstHarmonic;
-    features[8] = secondHarmonicPower;
-    features[9] = thirdHarmonicPower;
-    features[10] = fftIntegral;
-    features[11] = fftIntegralBelow2_5hz;
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
-    features[13] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
-    features[14] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
-    features[15] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
+    if (firstHarmonicPower == 0.0) {
+        features[8] = 0.0;
+    }
+    else {
+        features[8] = secondHarmonicPower / firstHarmonicPower;
+    }
+    features[9] = secondHarmonicPower;
+    features[10] = thirdHarmonicPower;
+    features[11] = fftIntegral;
+    features[12] = fftIntegralBelow2_5hz;
+    features[13] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
+    features[14] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
+    features[15] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
+    features[16] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
 
     LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
