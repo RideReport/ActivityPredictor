@@ -12,9 +12,11 @@ extern "C" {
     typedef struct FFTManager FFTManager;
     FFTManager *createFFTManager(int sampleCount);
     void deleteFFTManager(FFTManager *fftManager);
-    
+
     void fft(FFTManager *manager, float * input, int inputSize, float *output);
     float dominantPower(float *input, int inputSize);
+    void getHarmonicsInfo(float *powers, int inputSize,
+          float* dominantPower, int* indexOfDominantPower, float* secondHarmonicPower, float* thirdHarmonicPower);
     void autocorrelation(float *input, int inputSize, float *output);
 #ifdef __cplusplus
 }

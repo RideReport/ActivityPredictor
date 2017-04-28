@@ -85,3 +85,32 @@ float dominantPower(float *input, int inputSize)
 
     return dominantPower;
 }
+
+void getHarmonicsInfo(float *powers, int inputSize,
+      float* dominantPower, int* indexOfDominantPower, float* secondHarmonicPower, float* thirdHarmonicPower) {
+
+  float max = -1.0f;
+  int maxI = -1;
+  for (int i = 1; i < inputSize/2; ++i) {
+    if (powers[i] > max) {
+      max = powers[i];
+      maxI = i;
+    }
+  }
+  *dominantPower = max;
+  *indexOfDominantPower = maxI;
+
+  *secondHarmonicPower = -1.0f;
+  *thirdHarmonicPower = -1.0f;
+
+  int secondHarmonicIndex = maxI * 2;
+  int thirdHarmonicIndex = maxI * 3;
+
+  if (secondHarmonicIndex > 0 && secondHarmonicIndex < inputSize/2) {
+    *secondHarmonicPower = powers[secondHarmonicIndex];
+  }
+
+  if (thirdHarmonicIndex > 0 && thirdHarmonicIndex < inputSize/2) {
+    *thirdHarmonicPower = powers[thirdHarmonicIndex];
+  }
+}

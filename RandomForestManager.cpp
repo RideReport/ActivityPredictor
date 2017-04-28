@@ -41,7 +41,7 @@ using namespace std;
 struct RandomForestConfiguration {
     int sampleCount;
     float samplingRateHz;
-    
+
     string modelUID;
 };
 
@@ -112,7 +112,7 @@ bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile) 
         return false;
     }
     r->modelPath = string(pathToModelFile);
-    
+
     r->model = cv::ml::RTrees::load<cv::ml::RTrees>(r->modelPath);
     return true;
 }
@@ -173,7 +173,6 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     float *fftOutput = new float[randomForestManager->sampleCount];
 
     fft(randomForestManager->fftManager, accelerometerVector, randomForestManager->sampleCount, fftOutput);
-    float maxPower = dominantPower(fftOutput, randomForestManager->sampleCount);
 
     int spectrumLength = randomForestManager->sampleCount / 2; // exclude nyquist frequency
     vector<float> spectrum (fftOutput, fftOutput + spectrumLength);
@@ -183,19 +182,27 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
         spectrum.begin() + 1, // exclude DC
         spectrum.begin() + randomForestManager->fftIndex_below2_5hz + 1); // include 2.5Hz component
 
+    float firstHarmonicPower, secondHarmonicPower, thirdHarmonicPower;
+    int indexOfFirstHarmonic;
+    getHarmonicsInfo(fftOutput, randomForestManager->sampleCount,
+      &firstHarmonicPower, &indexOfFirstHarmonic, &secondHarmonicPower, &thirdHarmonicPower);
+
     features[0] = max(mags);
     features[1] = (float)meanMag.val[0];
     features[2] = maxMean(mags, 5);
     features[3] = (float)stddevMag.val[0];
     features[4] = (float)skewness(mags);
     features[5] = (float)kurtosis(mags);
-    features[6] = maxPower;
-    features[7] = fftIntegral;
-    features[8] = fftIntegralBelow2_5hz;
-    features[9] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
-    features[10] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
-    features[11] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
+    features[6] = firstHarmonicPower;
+    features[7] = indexOfFirstHarmonic;
+    features[8] = secondHarmonicPower;
+    features[9] = thirdHarmonicPower;
+    features[10] = fftIntegral;
+    features[11] = fftIntegralBelow2_5hz;
+    features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
+    features[13] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
+    features[14] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
+    features[15] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
 
     LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
@@ -312,23 +319,23 @@ void loadConfigurationFromJsonValue(RandomForestConfiguration* config, Json::Val
     if (root["model_metadata_version"].asInt() > 1) {
         throw std::runtime_error("Unsupported value for model_metadata_version");
     }
-    
+
     Json::Value sampleCount = root["sampling"]["sample_count"];
     if (sampleCount.isNull() || !sampleCount.isInt()) {
         throw std::runtime_error("Unacceptable sample_count");
     }
-    
+
     config->sampleCount = sampleCount.asInt();
     if (fmod(log(config->sampleCount)/log(2), 1.0) != 0.0) {
         throw std::runtime_error("sampleCount must be a power of 2");
     }
-    
+
     Json::Value samplingRateHz = root["sampling"]["sampling_rate_hz"];
     if (samplingRateHz.isNull() || !samplingRateHz.isNumeric()) {
         throw std::runtime_error("Unsupported sampling_rate_hz");
     }
     config->samplingRateHz = samplingRateHz.asFloat();
-    
+
     // This field is optional in the case where we are training a new model; returns empty string if not present
     config->modelUID = root["cv_sha256"].asString();
 }
