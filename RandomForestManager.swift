@@ -10,8 +10,6 @@ import Foundation
 
 class RandomForestManager {
     private var modelIdentifier: String?
-
-    static private(set) var shared : RandomForestManager!
     
     var _ptr: OpaquePointer!
     var classLables: [Int32]!
@@ -30,15 +28,6 @@ class RandomForestManager {
     
     var canPredict: Bool {
         return randomForestManagerCanPredict(_ptr)
-    }
-    
-    class func startup() {
-        if (RandomForestManager.shared == nil) {
-            RandomForestManager.shared = RandomForestManager()
-            DispatchQueue.main.async {
-                RandomForestManager.shared.startup()
-            }
-        }
     }
     
     init () {
