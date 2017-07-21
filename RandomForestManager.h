@@ -6,7 +6,7 @@
 //  Copyright © 2015 Knock Softwae, Inc. All rights reserved.
 //
 
-#define RANDOM_FOREST_VECTOR_SIZE (13)
+#define RANDOM_FOREST_VECTOR_SIZE (14)
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +24,7 @@ extern "C" {
     RandomForestManager *createRandomForestManagerFromJsonString(const char* jsonString);
     RandomForestManager *createRandomForestManagerFromFile(const char* pathToJson);
     bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile);
-    
+
     float randomForestGetDesiredSessionDuration(RandomForestManager *r);
     float randomForestGetDesiredSamplingInterval(RandomForestManager *r);
     const char* randomForestGetModelUniqueIdentifier(RandomForestManager *r);

@@ -41,7 +41,7 @@ using namespace std;
 struct RandomForestConfiguration {
     int sampleCount;
     float samplingRateHz;
-    
+
     string modelUID;
 };
 
@@ -63,6 +63,8 @@ struct RandomForestManager {
 
     cv::Ptr<cv::ml::RTrees> model;
 };
+
+const float log_of_2 = log(2);
 
 bool loadConfigurationFromString(RandomForestConfiguration* config, const char* jsonString);
 bool loadConfigurationFromJsonFile(RandomForestConfiguration* config, const char* pathToJson);
@@ -112,7 +114,7 @@ bool randomForestLoadModel(RandomForestManager *r, const char* pathToModelFile) 
         return false;
     }
     r->modelPath = string(pathToModelFile);
-    
+
     r->model = cv::ml::RTrees::load<cv::ml::RTrees>(r->modelPath);
     return true;
 }
@@ -162,6 +164,27 @@ void deleteRandomForestManager(RandomForestManager *r)
     }
 }
 
+float shannonEntropy(std::vector<float> vec) {
+    // c.f. https://en.wikipedia.org/wiki/Entropy_(information_theory)
+    // c.f. https://pdfs.semanticscholar.org/c2d0/8896042a9eeab750894d0a94b580b86ceb8f.pdf
+    // c.f. https://github.com/tyiannak/pyAudioAnalysis/blob/master/audioFeatureExtraction.py
+
+    // Sum of vector
+    float sum = 0.0;
+    for (float value : vec) {
+        sum += value;
+    }
+
+    // Normalize vector, then compute entropy
+    float entropy = 0.0;
+    for (float value : vec) {
+        value = value / sum;
+        entropy += ( value * log(value) / log_of_2 );
+    }
+
+    return entropy;
+}
+
 void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
     LOCAL_TIMING_START();
 
@@ -196,6 +219,7 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[10] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
     features[11] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
     features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
+    features[13] = shannonEntropy(spectrum);
 
     LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
@@ -312,23 +336,23 @@ void loadConfigurationFromJsonValue(RandomForestConfiguration* config, Json::Val
     if (root["model_metadata_version"].asInt() > 1) {
         throw std::runtime_error("Unsupported value for model_metadata_version");
     }
-    
+
     Json::Value sampleCount = root["sampling"]["sample_count"];
     if (sampleCount.isNull() || !sampleCount.isInt()) {
         throw std::runtime_error("Unacceptable sample_count");
     }
-    
+
     config->sampleCount = sampleCount.asInt();
     if (fmod(log(config->sampleCount)/log(2), 1.0) != 0.0) {
         throw std::runtime_error("sampleCount must be a power of 2");
     }
-    
+
     Json::Value samplingRateHz = root["sampling"]["sampling_rate_hz"];
     if (samplingRateHz.isNull() || !samplingRateHz.isNumeric()) {
         throw std::runtime_error("Unsupported sampling_rate_hz");
     }
     config->samplingRateHz = samplingRateHz.asFloat();
-    
+
     // This field is optional in the case where we are training a new model; returns empty string if not present
     config->modelUID = root["cv_sha256"].asString();
 }
