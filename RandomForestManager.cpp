@@ -164,21 +164,21 @@ void deleteRandomForestManager(RandomForestManager *r)
     }
 }
 
-float shannonEntropy(std::vector<float> vec) {
+float shannonEntropy(vector<float>::iterator begin, vector<float>::iterator end) {
     // c.f. https://en.wikipedia.org/wiki/Entropy_(information_theory)
     // c.f. https://pdfs.semanticscholar.org/c2d0/8896042a9eeab750894d0a94b580b86ceb8f.pdf
     // c.f. https://github.com/tyiannak/pyAudioAnalysis/blob/master/audioFeatureExtraction.py
 
-    // Sum of vector
     float sum = 0.0;
-    for (float value : vec) {
-        sum += value;
+    for (auto it = begin; it != end; ++it) {
+        sum += *it;
     }
 
     // Normalize vector, then compute entropy
     float entropy = 0.0;
-    for (float value : vec) {
-        value = value / sum;
+    float value;
+    for (auto it = begin; it != end; ++it) {
+        value = *it / sum;
         entropy += ( value * log(value) / log_of_2 );
     }
 
@@ -219,7 +219,7 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[10] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
     features[11] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
     features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
-    features[13] = shannonEntropy(spectrum);
+    features[13] = shannonEntropy(spectrum.begin() + 1, spectrum.end()); // exclude DC
 
     LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
 }
