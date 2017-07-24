@@ -6,12 +6,12 @@
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "3f972ae4ec52364fd0768f7f7649df33621cfd06",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
+    "predictor_commit_sha": "d588c6325df0dcf2d5105b8348f53d334a5924a1",
     "predictor_is_dirty": false
   },
-  "cv_sha256": "56e07b88eefae613b2d01da848d72daa3958d80050cbb30cc8b39990ee7ede68",
+  "cv_sha256": "871965d9a67ebf58ad33005849cd441366780a82197f02d8b5e3e689a6355024",
   "data": {
     "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
   },
@@ -21,8 +21,8 @@
     "split": false
   },
   "features": {
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
+    "count": 431131
   },
   "model_metadata_version": 1,
   "sampling": {

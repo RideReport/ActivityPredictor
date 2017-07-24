@@ -6,9 +6,9 @@
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "3f972ae4ec52364fd0768f7f7649df33621cfd06",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
+    "predictor_commit_sha": "89bebca278d07c5b2572ed925dc870e2ff8f8606",
     "predictor_is_dirty": true
   },
   "confusion": {
@@ -2955,11 +2955,13 @@
       }
     ],
     "matrix_is_oob": false,
-    "matrix_str": "CV Accuracy 2:  91 2=91 3= 2 4= 2 5= 4 6= 0 7= 0 ( 136246 total)\nCV Accuracy 3:  85 2= 2 3=85 4= 0 5= 9 6= 2 7= 0 ( 95497 total)\nCV Accuracy 4:  96 2= 3 3= 0 4=96 5= 0 6= 0 7= 0 ( 119196 total)\nCV Accuracy 5:  82 2= 3 3= 7 4= 0 5=82 6= 5 7= 0 ( 24516 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 6 6=86 7= 2 ( 36573 total)\nCV Accuracy 7:  90 2= 0 3= 1 4= 0 5= 2 6= 5 7=90 ( 21341 total)"
+    "matrix_str": "CV Accuracy 2:  91 2=91 3= 1 4= 1 5= 4 6= 0 7= 0 ( 135593 total)\nCV Accuracy 3:  85 2= 1 3=85 4= 0 5= 9 6= 2 7= 0 ( 95027 total)\nCV Accuracy 4:  96 2= 3 3= 0 4=96 5= 0 6= 0 7= 0 ( 118617 total)\nCV Accuracy 5:  82 2= 3 3= 6 4= 0 5=82 6= 5 7= 0 ( 24337 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 6 6=86 7= 2 ( 36321 total)\nCV Accuracy 7:  90 2= 0 3= 1 4= 0 5= 1 6= 5 7=90 ( 21236 total)"
   },
   "cv": {
     "opencv_ml_rtrees": {
       "cat_ofs": [
+        0,
+        0,
         0,
         0,
         0,
@@ -3013,26 +3015,27 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "ntrees": 6,
-      "oob_error": 0.111831869510665,
-      "ord_var_count": 13,
+      "oob_error": 0.11078212890070138,
+      "ord_var_count": 14,
       "training_params": {
         "cross_validation_folds": 0,
         "max_categories": 10,
         "max_depth": 25,
-        "min_sample_count": 433,
+        "min_sample_count": 431,
         "nactive_vars": 10,
         "priors": {
           "cols": 1,
           "data": [
-            0.10548925640544644,
-            0.15050199721683882,
-            0.1205786203246456,
-            0.5862493566738642,
-            0.392980866437439,
-            0.6734684048646481
+            0.10535679779863023,
+            0.15033247691613616,
+            0.12043504964642227,
+            0.5869928209684706,
+            0.3933163812645486,
+            0.6727088097527628
           ],
           "dt": "d",
           "rows": 6
@@ -3040,8 +3043,8 @@
         "regression_accuracy": 0.0,
         "use_surrogates": 0
       },
-      "var_all": 14,
-      "var_count": 13,
+      "var_all": 15,
+      "var_count": 14,
       "var_idx": [
         0,
         1,
@@ -3055,24 +3058,27 @@
         9,
         10,
         11,
-        12
+        12,
+        13
       ],
       "var_importance": [
-        0.0484277792,
-        0.117180936,
-        0.0669102818,
-        0.211898744,
-        0.00650599925,
-        0.00652083615,
-        0.0429381132,
-        0.0635398254,
-        0.120866679,
-        0.128647417,
-        0.0341095142,
-        0.0632090867,
-        0.0892448276
+        0.0582669377,
+        0.119215988,
+        0.0615019165,
+        0.126389369,
+        0.00696779229,
+        0.00694881519,
+        0.0358713195,
+        0.047584042,
+        0.103561699,
+        0.115276955,
+        0.0332391858,
+        0.0568347909,
+        0.0454661883,
+        0.182874978
       ],
       "var_type": [
+        0,
         0,
         0,
         0,
@@ -3090,7 +3096,7 @@
       ]
     }
   },
-  "cv_sha256": "615413bf2d47d0571a85758109eb8c63e0559a16192f701898de69c166c3fa18",
+  "cv_sha256": "5621950cdcaea54856015c06a0da6daabb33a93b309f6b8220cdbca9c50be3fa",
   "data": {
     "id": [
       {
@@ -6038,12 +6044,12 @@
   },
   "extra": {
     "include_crowd_data": false,
-    "platform": "android",
+    "platform": "ios",
     "split": false
   },
   "features": {
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
+    "count": 431131
   },
   "model_metadata_version": 1,
   "sampling": {

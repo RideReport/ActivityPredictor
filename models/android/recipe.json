@@ -6,9 +6,9 @@
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "0296c81fc4ce3fd2ffca9fd48349ea625ca67deb",
+    "pipeline_commit_sha": "3f972ae4ec52364fd0768f7f7649df33621cfd06",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "a1ec64e353d734aa51dfddf9ea8d0edde95ec055",
+    "predictor_commit_sha": "d588c6325df0dcf2d5105b8348f53d334a5924a1",
     "predictor_is_dirty": false
   },
   "confusion": {
@@ -2955,11 +2955,19 @@
       }
     ],
     "matrix_is_oob": false,
-    "matrix_str": "CV Accuracy 2:  91 2=91 3= 2 4= 2 5= 4 6= 0 7= 0 ( 136246 total)\nCV Accuracy 3:  85 2= 2 3=85 4= 0 5= 9 6= 2 7= 0 ( 95497 total)\nCV Accuracy 4:  96 2= 3 3= 0 4=96 5= 0 6= 0 7= 0 ( 119196 total)\nCV Accuracy 5:  82 2= 3 3= 7 4= 0 5=82 6= 5 7= 0 ( 24516 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 6 6=86 7= 2 ( 36573 total)\nCV Accuracy 7:  90 2= 0 3= 1 4= 0 5= 2 6= 5 7=90 ( 21341 total)"
+    "matrix_str": "CV Accuracy 2:  92 2=92 3= 1 4= 1 5= 4 6= 0 7= 0 ( 135593 total)\nCV Accuracy 3:  86 2= 1 3=86 4= 0 5= 8 6= 2 7= 0 ( 95027 total)\nCV Accuracy 4:  97 2= 2 3= 0 4=97 5= 0 6= 0 7= 0 ( 118617 total)\nCV Accuracy 5:  83 2= 2 3= 7 4= 0 5=83 6= 5 7= 0 ( 24337 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 5 6=86 7= 2 ( 36321 total)\nCV Accuracy 7:  91 2= 0 3= 1 4= 0 5= 1 6= 5 7=91 ( 21236 total)"
   },
   "cv": {
     "opencv_ml_rtrees": {
       "cat_ofs": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0,
         0,
         0,
@@ -3013,26 +3021,30 @@
         0.0,
         0.0,
         0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "ntrees": 6,
-      "oob_error": 0.111831869510665,
-      "ord_var_count": 13,
+      "oob_error": 0.10239365063316735,
+      "ord_var_count": 17,
       "training_params": {
         "cross_validation_folds": 0,
         "max_categories": 10,
         "max_depth": 25,
-        "min_sample_count": 433,
+        "min_sample_count": 431,
         "nactive_vars": 10,
         "priors": {
           "cols": 1,
           "data": [
-            0.10548925640544644,
-            0.15050199721683882,
-            0.1205786203246456,
-            0.5862493566738642,
-            0.392980866437439,
-            0.6734684048646481
+            0.10535679779863023,
+            0.15033247691613616,
+            0.12043504964642227,
+            0.5869928209684706,
+            0.3933163812645486,
+            0.6727088097527628
           ],
           "dt": "d",
           "rows": 6
@@ -3040,8 +3052,8 @@
         "regression_accuracy": 0.0,
         "use_surrogates": 0
       },
-      "var_all": 14,
-      "var_count": 13,
+      "var_all": 18,
+      "var_count": 17,
       "var_idx": [
         0,
         1,
@@ -3055,24 +3067,36 @@
         9,
         10,
         11,
-        12
+        12,
+        13,
+        14,
+        15,
+        16
       ],
       "var_importance": [
-        0.0484278388,
-        0.117181078,
-        0.0669103637,
-        0.211898997,
-        0.00650600716,
-        0.00652084406,
-        0.0429381616,
-        0.0635398999,
-        0.120866828,
-        0.128646955,
-        0.0341095552,
-        0.0632085428,
-        0.0892449319
+        0.045974344,
+        0.109082736,
+        0.0615643449,
+        0.180400223,
+        0.00632396247,
+        0.00631509535,
+        0.0370866284,
+        0.00631568627,
+        0.0201890338,
+        0.0248383116,
+        0.0620402098,
+        0.0344507582,
+        0.101124875,
+        0.102965079,
+        0.030959513,
+        0.0875299498,
+        0.0828392953
       ],
       "var_type": [
+        0,
+        0,
+        0,
+        0,
         0,
         0,
         0,
@@ -3090,7 +3114,7 @@
       ]
     }
   },
-  "cv_sha256": "56e07b88eefae613b2d01da848d72daa3958d80050cbb30cc8b39990ee7ede68",
+  "cv_sha256": "871965d9a67ebf58ad33005849cd441366780a82197f02d8b5e3e689a6355024",
   "data": {
     "id": [
       {
@@ -6042,8 +6066,8 @@
     "split": false
   },
   "features": {
-    "config_sha256": "b5b06ab9a453e07feaf94c41da6fd5637d32a9ca9801ef2f8c1a793e97ca6778",
-    "count": 433369
+    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
+    "count": 431131
   },
   "model_metadata_version": 1,
   "sampling": {
