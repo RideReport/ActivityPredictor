@@ -6,12 +6,12 @@
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "3f972ae4ec52364fd0768f7f7649df33621cfd06",
+    "pipeline_commit_sha": "59c50b19466896d67c3e6f0a5d20c910dee7f999",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "d588c6325df0dcf2d5105b8348f53d334a5924a1",
+    "predictor_commit_sha": "cd021ea2a8da206123cfb3fc1df22dc9c6dff08b",
     "predictor_is_dirty": false
   },
-  "cv_sha256": "871965d9a67ebf58ad33005849cd441366780a82197f02d8b5e3e689a6355024",
+  "cv_sha256": "d4915f1786970c5aa6ed983d51486b56664fbb5a5ad8f86c405c498bc13b1d0d",
   "data": {
     "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
   },
@@ -21,12 +21,12 @@
     "split": false
   },
   "features": {
-    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
-    "count": 431131
+    "config_sha256": "a3601b2717e4510d987682b4b9149aa789f03c8b4c0c95fe250a016fa59a1cfb",
+    "count": 398574
   },
   "model_metadata_version": 1,
   "sampling": {
-    "sample_count": 64,
+    "sample_count": 128,
     "sampling_rate_hz": 21.0
   }
 }

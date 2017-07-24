@@ -6,9 +6,9 @@
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "3f972ae4ec52364fd0768f7f7649df33621cfd06",
+    "pipeline_commit_sha": "59c50b19466896d67c3e6f0a5d20c910dee7f999",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "89bebca278d07c5b2572ed925dc870e2ff8f8606",
+    "predictor_commit_sha": "cd021ea2a8da206123cfb3fc1df22dc9c6dff08b",
     "predictor_is_dirty": true
   },
   "confusion": {
@@ -2955,7 +2955,7 @@
       }
     ],
     "matrix_is_oob": false,
-    "matrix_str": "CV Accuracy 2:  91 2=91 3= 1 4= 1 5= 4 6= 0 7= 0 ( 135593 total)\nCV Accuracy 3:  85 2= 1 3=85 4= 0 5= 9 6= 2 7= 0 ( 95027 total)\nCV Accuracy 4:  96 2= 3 3= 0 4=96 5= 0 6= 0 7= 0 ( 118617 total)\nCV Accuracy 5:  82 2= 3 3= 6 4= 0 5=82 6= 5 7= 0 ( 24337 total)\nCV Accuracy 6:  86 2= 0 3= 4 4= 0 5= 6 6=86 7= 2 ( 36321 total)\nCV Accuracy 7:  90 2= 0 3= 1 4= 0 5= 1 6= 5 7=90 ( 21236 total)"
+    "matrix_str": "CV Accuracy 2:  95 2=95 3= 0 4= 0 5= 3 6= 0 7= 0 ( 126117 total)\nCV Accuracy 3:  89 2= 1 3=89 4= 0 5= 7 6= 1 7= 0 ( 87978 total)\nCV Accuracy 4:  98 2= 1 3= 0 4=98 5= 0 6= 0 7= 0 ( 110147 total)\nCV Accuracy 5:  89 2= 1 3= 4 4= 0 5=89 6= 3 7= 0 ( 21739 total)\nCV Accuracy 6:  92 2= 0 3= 2 4= 0 5= 3 6=92 7= 1 ( 32803 total)\nCV Accuracy 7:  94 2= 0 3= 0 4= 0 5= 1 6= 3 7=94 ( 19790 total)"
   },
   "cv": {
     "opencv_ml_rtrees": {
@@ -3019,23 +3019,23 @@
         0.0
       ],
       "ntrees": 6,
-      "oob_error": 0.11078212890070138,
+      "oob_error": 0.06874296435272045,
       "ord_var_count": 14,
       "training_params": {
         "cross_validation_folds": 0,
         "max_categories": 10,
         "max_depth": 25,
-        "min_sample_count": 431,
+        "min_sample_count": 398,
         "nactive_vars": 10,
         "priors": {
           "cols": 1,
           "data": [
-            0.10535679779863023,
-            0.15033247691613616,
-            0.12043504964642227,
-            0.5869928209684706,
-            0.3933163812645486,
-            0.6727088097527628
+            0.10346399598175735,
+            0.14831626976325094,
+            0.11846504018476482,
+            0.6002377653632316,
+            0.3977858360891165,
+            0.6593516311890495
           ],
           "dt": "d",
           "rows": 6
@@ -3062,20 +3062,20 @@
         13
       ],
       "var_importance": [
-        0.0582669377,
-        0.119215988,
-        0.0615019165,
-        0.126389369,
-        0.00696779229,
-        0.00694881519,
-        0.0358713195,
-        0.047584042,
-        0.103561699,
-        0.115276955,
-        0.0332391858,
-        0.0568347909,
-        0.0454661883,
-        0.182874978
+        0.0585525222,
+        0.114141397,
+        0.0687094703,
+        0.101455532,
+        0.00515636569,
+        0.00516744936,
+        0.0360508412,
+        0.0187387783,
+        0.0831644088,
+        0.122371636,
+        0.053848125,
+        0.110110641,
+        0.174044892,
+        0.0484879427
       ],
       "var_type": [
         0,
@@ -3096,7 +3096,7 @@
       ]
     }
   },
-  "cv_sha256": "5621950cdcaea54856015c06a0da6daabb33a93b309f6b8220cdbca9c50be3fa",
+  "cv_sha256": "8f6da131b50d11013a6ede710810dd48ea14e08ee51429371264e53887876de8",
   "data": {
     "id": [
       {
@@ -6048,12 +6048,12 @@
     "split": false
   },
   "features": {
-    "config_sha256": "226a91ffb81e61aa354213ca8f26fd6dc193ee633c8bbc5a7f2c5e0c29ffbca8",
-    "count": 431131
+    "config_sha256": "a3601b2717e4510d987682b4b9149aa789f03c8b4c0c95fe250a016fa59a1cfb",
+    "count": 398574
   },
   "model_metadata_version": 1,
   "sampling": {
-    "sample_count": 64,
+    "sample_count": 128,
     "sampling_rate_hz": 21.0
   }
 }
