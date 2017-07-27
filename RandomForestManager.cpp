@@ -185,6 +185,9 @@ float shannonEntropy(vector<float>::iterator begin, vector<float>::iterator end)
     return entropy;
 }
 
+// number of features that are computed by this function
+static const int BASIC_FEATURE_COUNT = 14;
+
 void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
     LOCAL_TIMING_START();
 
@@ -245,7 +248,7 @@ bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
     return ((a.t) < (b.t));
 }
 
-bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float* seconds, int readingCount) {
+bool prepareNormsAndSeconds(AccelerometerReading* readings, Mat vecsMat, float* norms, float* seconds, int readingCount) {
     LOCAL_TIMING_START();
 
     auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
@@ -260,7 +263,14 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, float* norms, float*
     AccelerometerReading* reading;
     int i;
     double firstReadingT = readings[0].t;
-    for (second = seconds, norm = norms, reading = readings, i = 0; i < readingCount; ++i, ++reading, ++norm, ++second) {
+    for (second = seconds, norm = norms, reading = readings, i = 0;
+        i < readingCount;
+        ++i, ++reading, ++norm, ++second) {
+
+        vecsMat.at<float>(i, 0) = reading->x;
+        vecsMat.at<float>(i, 1) = reading->y;
+        vecsMat.at<float>(i, 2) = reading->z;
+
         *norm = sqrt(
             (reading->x * reading->x) +
             (reading->y * reading->y) +
@@ -283,6 +293,29 @@ bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestMa
     return successful;
 }
 
+bool prepareRotatedSignal(float* seconds, Mat vecsMat, float* zs, float* xyNorms, int readingCount)
+{
+    assert(readingCount == vecsMat.rows);
+    assert(3 == vecsMat.cols);
+
+    if (readingCount < 1) {
+        return false;
+    }
+
+    Mat meanVec;
+    reduce(vecsMat, meanVec, 0, CV_REDUCE_AVG);
+    Mat zAxis = (Mat_<float>(1, 3) << 0.f, 0.f, 1.f);
+    Mat rotationMatrix = getRotationMatrixFromTwoVectors(meanVec, zAxis);
+    Mat row;
+    for (int i = 0; i < vecsMat.rows; ++i) {
+        row = (rotationMatrix * vecsMat.row(i).t()).t();
+        zs[i] = row.at<float>(2);
+        xyNorms[i] = sqrtf(row.at<float>(0) * row.at<float>(0) + row.at<float>(1) * row.at<float>(1));
+    }
+
+    return true;
+}
+
 bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *randomForestManager,
         AccelerometerReading* readings, int readingCount,
         float* features, int feature_count, float offsetSeconds) {
@@ -291,11 +324,14 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
     }
 
     float* norms = new float[readingCount];
+    Mat vecsMat = Mat(readingCount, 3, CV_32F);
     float* seconds = new float[readingCount];
     bool successful = false;
 
-    if (prepareNormsAndSeconds(readings, norms, seconds, readingCount)) {
+    if (prepareNormsAndSeconds(readings, vecsMat, norms, seconds, readingCount)) {
         float* resampledNorms = new float[randomForestManager->sampleCount];
+        float *zs = new float[readingCount];
+        float *xyNorms = new float[readingCount];
         float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
         successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
@@ -303,6 +339,24 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
             calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
         }
 
+        if (successful && prepareRotatedSignal(seconds, vecsMat, zs, xyNorms, readingCount)) {
+            float* resampledZs = new float[randomForestManager->sampleCount];
+            float* resampledXYNorms = new float[randomForestManager->sampleCount];
+            successful = successful && interpolateSplineRegular(seconds, zs, readingCount, resampledZs, randomForestManager->sampleCount, newSpacing, offsetSeconds);
+            if (successful) {
+                calculateFeaturesFromNorms(randomForestManager, features + BASIC_FEATURE_COUNT, resampledZs);
+            }
+            successful = successful && interpolateSplineRegular(seconds, xyNorms, readingCount, resampledXYNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
+            if (successful) {
+                calculateFeaturesFromNorms(randomForestManager, features + BASIC_FEATURE_COUNT * 2, resampledXYNorms);
+            }
+
+            delete[] resampledXYNorms;
+            delete[] resampledZs;
+        }
+
+        delete[] zs;
+        delete[] xyNorms;
         delete[] resampledNorms;
     }
     delete[] norms;

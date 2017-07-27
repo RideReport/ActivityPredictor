@@ -38,4 +38,7 @@ double kurtosis(cv::Mat mat);
 float trapezoidArea(vector<float>::iterator start, vector<float>::iterator end);
 float percentile(float *input, int length, float percentile);
 
+cv::Mat getRotationMatrixFromTwoVectors(cv::Mat from, cv::Mat to);
+
+
 #endif /* Utility_h */

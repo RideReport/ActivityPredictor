@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <math.h>
 #include "Utility.h"
+#include <opencv2/core/core.hpp>
 
 #include <iostream>
 
 using namespace std;
+using namespace cv;
 
 // spline interpolator from:
 // http://blog.ivank.net/interpolation-with-cubic-splines.html
@@ -42,7 +44,7 @@ void solveTDMatrixThomas(cv::Mat A, float* x) {
     //
     // The first `A.rows` columns of parameter A are the matrix A; the last
     // column is the result vector b.
-    
+
     cv::Mat d = A.col(A.rows);
 
     int n = A.rows;
@@ -156,13 +158,13 @@ float evaluateSpline(float x, float* xs, float *ys, float *ks)
 
 bool interpolateSplineRegular(float* inputX, float* inputY, int inputLength, float* outputY, int outputLength, float newSpacing, float initialOffset) {
     LOCAL_TIMING_START();
-    
+
     if (inputLength < 4) {
         // getNaturalKs may fail without inputLength of at least 4
-        
+
         return false;
     }
-    
+
     float ks[inputLength];
     float maxX = inputX[inputLength-1];
 
@@ -312,4 +314,70 @@ float percentile(float *input, int length, float percentile)
     std::partial_sort_copy (input, input+length, sortedInput.begin(), sortedInput.end());
 
     return sortedInput[cvFloor(length*percentile)-1];
+}
+
+/**
+ * https://en.wikipedia.org/wiki/Euler%E2%80%93Rodrigues_formula
+ *
+ def rotation_matrix(axis, theta):
+    """
+    Return the rotation matrix associated with counterclockwise rotation about
+    the given axis by theta radians.
+    """
+    axis = np.asarray(axis)
+    axis = axis/math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta/2.0)
+    b, c, d = -axis*math.sin(theta/2.0)
+    aa, bb, cc, dd = a*a, b*b, c*c, d*d
+    bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
+    return np.array([[aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac)],
+                     [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab)],
+                     [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
+
+ */
+Mat getRotationMatrixFromAxisAndAngle(Mat axis, float theta)
+{
+    assert(axis.cols == 3);
+    assert(axis.rows == 1);
+    Mat normalized_axis = axis / sqrtf(axis.dot(axis));
+    float a = cosf(theta/2.0f);
+    float sintheta2 = sinf(theta/2.0f);
+
+    float b = -(normalized_axis.at<float>(0)) * sintheta2;
+    float c = -(normalized_axis.at<float>(1)) * sintheta2;
+    float d = -(normalized_axis.at<float>(2)) * sintheta2;
+
+    float aa = a*a;
+    float bb = b*b;
+    float cc = c*c;
+    float dd = d*d;
+
+    float bc = b*c;
+    float ad = a*d;
+    float ac = a*c;
+    float ab = a*b;
+    float bd = b*d;
+    float cd = c*d;
+
+    return (Mat_<float>(3, 3) <<
+        aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac),
+        2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab),
+        2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc)
+    ;
+}
+
+Mat getRotationMatrixFromTwoVectors(Mat from, Mat to)
+{
+    assert(from.cols == to.cols && from.cols == 3);
+    assert(from.rows == to.rows && from.rows == 1);
+
+    // Cross product gives a vector normal to the plane defined
+    // by the two vectors
+    Mat axis = from.cross(to);
+
+    // Angle between the two vectors
+    float theta = acosf(from.dot(to));
+
+    // Rotation matrix representing the rotation `theta` about the axis `axis`
+    return getRotationMatrixFromAxisAndAngle(axis, theta);
 }
