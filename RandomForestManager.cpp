@@ -323,15 +323,16 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
         return false;
     }
 
+    LOCAL_TIMING_START();
+
     float* norms = new float[readingCount];
     Mat vecsMat = Mat(readingCount, 3, CV_32F);
     float* seconds = new float[readingCount];
     bool successful = false;
-
     if (prepareNormsAndSeconds(readings, vecsMat, norms, seconds, readingCount)) {
         float* resampledNorms = new float[randomForestManager->sampleCount];
-        float *zs = new float[readingCount];
-        float *xyNorms = new float[readingCount];
+        float* zs = new float[readingCount];
+        float* xyNorms = new float[readingCount];
         float newSpacing = 1.f / ((float)randomForestManager->samplingRateHz);
 
         successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
@@ -362,6 +363,7 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
     delete[] norms;
     delete[] seconds;
 
+    LOCAL_TIMING_FINISH("randomForestPrepareFeaturesFromAccelerometerSignal");
     return successful;
 }
 

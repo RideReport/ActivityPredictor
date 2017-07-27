@@ -376,7 +376,8 @@ Mat getRotationMatrixFromTwoVectors(Mat from, Mat to)
     Mat axis = from.cross(to);
 
     // Angle between the two vectors
-    float theta = acosf(from.dot(to));
+    // Recall: a <dot> b = |a| * |b| * cos(theta)
+    float theta = acosf(from.dot(to) / (norm(from) * norm(to)));
 
     // Rotation matrix representing the rotation `theta` about the axis `axis`
     return getRotationMatrixFromAxisAndAngle(axis, theta);
