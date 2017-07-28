@@ -31,7 +31,7 @@ class RandomForestManager {
     }
     
     init () {
-        guard let configFilePath = Bundle(for: type(of: self)).path(forResource: "config.json", ofType: nil) else {
+        guard let configFilePath = Bundle(for: type(of: self)).path(forResource: "ios/config.json", ofType: nil) else {
             return
         }
         
@@ -58,7 +58,7 @@ class RandomForestManager {
             return
         }
         
-        guard let modelPath = Bundle(for: type(of: self)).path(forResource: String(format: "%@.cv", modelID), ofType: nil) else {
+        guard let modelPath = Bundle(for: type(of: self)).path(forResource: String(format: "ios/%@.cv", modelID), ofType: nil) else {
             return
         }
         
