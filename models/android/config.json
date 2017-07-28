@@ -1,17 +1,17 @@
 {
   "builder": {
-    "active_var_count": 10,
+    "active_var_count": 25,
     "epsilon": 1e-05,
-    "max_tree_count": 6,
+    "max_tree_count": 11,
     "sample_count_multiple": 0.001
   },
   "code": {
-    "pipeline_commit_sha": "59c50b19466896d67c3e6f0a5d20c910dee7f999",
+    "pipeline_commit_sha": "911a805284f54b903655270b6f47453f3b665cd0",
     "pipeline_is_dirty": true,
-    "predictor_commit_sha": "cd021ea2a8da206123cfb3fc1df22dc9c6dff08b",
-    "predictor_is_dirty": false
+    "predictor_commit_sha": "0bd9a61d09f0e1964aad152cd4113ba33dbfa54b",
+    "predictor_is_dirty": true
   },
-  "cv_sha256": "d4915f1786970c5aa6ed983d51486b56664fbb5a5ad8f86c405c498bc13b1d0d",
+  "cv_sha256": "ab661117881a716d10d1f2c30c503688e826fffecd9d5891eb4891f3cb45f265",
   "data": {
     "sha256": "ae97cf8cdff01079dba3906d833a8beb98456e839edcecad7fcde1735a0d038b"
   },
