@@ -188,17 +188,17 @@ float shannonEntropy(vector<float>::iterator begin, vector<float>::iterator end)
 // number of features that are computed by this function
 static const int BASIC_FEATURE_COUNT = 14;
 
-void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float* features, float* accelerometerVector) {
+void calculateFeaturesFromRegularVector(RandomForestManager *randomForestManager, float* features, float* vec) {
     LOCAL_TIMING_START();
 
-    cv::Mat mags = cv::Mat(randomForestManager->sampleCount, 1, CV_32F, accelerometerVector);
+    cv::Mat mags = cv::Mat(randomForestManager->sampleCount, 1, CV_32F, vec);
 
     cv::Scalar meanMag,stddevMag;
     meanStdDev(mags,meanMag,stddevMag);
 
     float *fftOutput = new float[randomForestManager->sampleCount];
 
-    fft(randomForestManager->fftManager, accelerometerVector, randomForestManager->sampleCount, fftOutput);
+    fft(randomForestManager->fftManager, vec, randomForestManager->sampleCount, fftOutput);
     float maxPower = dominantPower(fftOutput, randomForestManager->sampleCount);
 
     int spectrumLength = randomForestManager->sampleCount / 2; // exclude nyquist frequency
@@ -218,13 +218,13 @@ void calculateFeaturesFromNorms(RandomForestManager *randomForestManager, float*
     features[6] = maxPower;
     features[7] = fftIntegral;
     features[8] = fftIntegralBelow2_5hz;
-    features[9] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.25);
-    features[10] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.5);
-    features[11] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.75);
-    features[12] = percentile(accelerometerVector, randomForestManager->sampleCount, 0.9);
+    features[9] = percentile(vec, randomForestManager->sampleCount, 0.25);
+    features[10] = percentile(vec, randomForestManager->sampleCount, 0.5);
+    features[11] = percentile(vec, randomForestManager->sampleCount, 0.75);
+    features[12] = percentile(vec, randomForestManager->sampleCount, 0.9);
     features[13] = shannonEntropy(spectrum.begin() + 1, spectrum.end()); // exclude DC
 
-    LOCAL_TIMING_FINISH("calculateFeaturesFromNorms");
+    LOCAL_TIMING_FINISH("calculateFeaturesFromRegularVector");
 }
 
 void randomForestClassifyFeatures(RandomForestManager *randomForestManager, float* features, float* confidences, int n_classes) {
@@ -337,7 +337,7 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
 
         successful = interpolateSplineRegular(seconds, norms, readingCount, resampledNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
         if (successful) {
-            calculateFeaturesFromNorms(randomForestManager, features, resampledNorms);
+            calculateFeaturesFromRegularVector(randomForestManager, features, resampledNorms);
         }
 
         if (successful && prepareRotatedSignal(seconds, vecsMat, zs, xyNorms, readingCount)) {
@@ -345,11 +345,11 @@ bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *ran
             float* resampledXYNorms = new float[randomForestManager->sampleCount];
             successful = successful && interpolateSplineRegular(seconds, zs, readingCount, resampledZs, randomForestManager->sampleCount, newSpacing, offsetSeconds);
             if (successful) {
-                calculateFeaturesFromNorms(randomForestManager, features + BASIC_FEATURE_COUNT, resampledZs);
+                calculateFeaturesFromRegularVector(randomForestManager, features + BASIC_FEATURE_COUNT, resampledZs);
             }
             successful = successful && interpolateSplineRegular(seconds, xyNorms, readingCount, resampledXYNorms, randomForestManager->sampleCount, newSpacing, offsetSeconds);
             if (successful) {
-                calculateFeaturesFromNorms(randomForestManager, features + BASIC_FEATURE_COUNT * 2, resampledXYNorms);
+                calculateFeaturesFromRegularVector(randomForestManager, features + BASIC_FEATURE_COUNT * 2, resampledXYNorms);
             }
 
             delete[] resampledXYNorms;
