@@ -244,14 +244,14 @@ void randomForestClassifyFeatures(RandomForestManager *randomForestManager, floa
     }
 }
 
-bool readingIsLess(AccelerometerReading a, AccelerometerReading b) {
+bool readingIsLess(AccelerometerReadingStruct a, AccelerometerReadingStruct b) {
     return ((a.t) < (b.t));
 }
 
-bool prepareNormsAndSeconds(AccelerometerReading* readings, Mat vecsMat, float* norms, float* seconds, int readingCount) {
+bool prepareNormsAndSeconds(AccelerometerReadingStruct* readings, Mat vecsMat, float* norms, float* seconds, int readingCount) {
     LOCAL_TIMING_START();
 
-    auto readingVector = std::vector<AccelerometerReading>(readings, readings + readingCount);
+    auto readingVector = std::vector<AccelerometerReadingStruct>(readings, readings + readingCount);
     std::sort(readings, readings + readingCount, readingIsLess);
 
     if (readingCount < 1) {
@@ -260,7 +260,7 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, Mat vecsMat, float* 
 
     float* norm;
     float* second;
-    AccelerometerReading* reading;
+    AccelerometerReadingStruct* reading;
     int i;
     double firstReadingT = readings[0].t;
     for (second = seconds, norm = norms, reading = readings, i = 0;
@@ -282,7 +282,7 @@ bool prepareNormsAndSeconds(AccelerometerReading* readings, Mat vecsMat, float* 
     return true;
 }
 
-bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReading* readings, int readingCount, float* confidences, int n_classes) {
+bool randomForestClassifyAccelerometerSignal(RandomForestManager *randomForestManager, AccelerometerReadingStruct* readings, int readingCount, float* confidences, int n_classes) {
     float* features = new float[RANDOM_FOREST_VECTOR_SIZE];
     bool successful = randomForestPrepareFeaturesFromAccelerometerSignal(randomForestManager, readings, readingCount, features, RANDOM_FOREST_VECTOR_SIZE, 0.f);
     if (successful) {
@@ -317,7 +317,7 @@ bool prepareRotatedSignal(float* seconds, Mat vecsMat, float* zs, float* xyNorms
 }
 
 bool randomForestPrepareFeaturesFromAccelerometerSignal(RandomForestManager *randomForestManager,
-        AccelerometerReading* readings, int readingCount,
+        AccelerometerReadingStruct* readings, int readingCount,
         float* features, int feature_count, float offsetSeconds) {
     if (feature_count < RANDOM_FOREST_VECTOR_SIZE) {
         return false;

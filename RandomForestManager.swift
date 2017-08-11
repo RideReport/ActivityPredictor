@@ -70,21 +70,20 @@ class RandomForestManager {
         randomForestGetClassLabels(_ptr, UnsafeMutablePointer(mutating: self.classLables), Int32(self.classCount))
     }
 
-    private func accelerometerReadings(forSensorData sensorData:NSOrderedSet)->[AccelerometerReading] {
-        var readings: [AccelerometerReading] = []
+    private func accelerometerReadings(forAccelerometerReadings accelerometerReadings: [AccelerometerReading])->[AccelerometerReadingStruct] {
+        var readings: [AccelerometerReadingStruct] = []
         
-        for elem in sensorData {
-            let data = elem as! SensorData
-            let reading = AccelerometerReading(x: data.x.floatValue, y: data.y.floatValue, z: data.z.floatValue, t: data.date.timeIntervalSinceReferenceDate)
+        for reading in accelerometerReadings {
+            let reading = AccelerometerReadingStruct(x: Float(reading.x), y: Float(reading.y), z: Float(reading.z), t: reading.date.timeIntervalSinceReferenceDate)
             readings.append(reading)
         }
         
         return readings
     }
     
-    func classify(_ sensorDataCollection: SensorDataCollection)
+    func classify(_ prediction: Prediction)
     {
-        let accelVector = self.accelerometerReadings(forSensorData: sensorDataCollection.accelerometerAccelerations)
+        let accelVector = self.accelerometerReadings(forAccelerometerReadings: prediction.fetchAccelerometerReadings(timeInterval: self.desiredSessionDuration))
         let confidences = [Float](repeating: 0.0, count: self.classCount)
         
         randomForestClassifyAccelerometerSignal(_ptr, UnsafeMutablePointer(mutating: accelVector), Int32(accelVector.count), UnsafeMutablePointer(mutating: confidences), Int32(self.classCount))
@@ -95,8 +94,8 @@ class RandomForestManager {
             classConfidences[Int(classLables[i])] = score
         }
 
-        sensorDataCollection.activityPredictionModelIdentifier = modelIdentifier
-        sensorDataCollection.setActivityTypePredictions(forClassConfidences: classConfidences)
+        prediction.activityPredictionModelIdentifier = modelIdentifier
+        prediction.setPredictedActivities(forClassConfidences: classConfidences)
         CoreDataManager.shared.saveContext()
     }
 }
