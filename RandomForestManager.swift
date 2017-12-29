@@ -8,29 +8,29 @@
 
 import Foundation
 
-class RandomForestManager {
+public class RandomForestManager {
     private var modelIdentifier: String?
     
     var _ptr: OpaquePointer!
     var classLables: [Int32]!
     var classCount = 0
-    var desiredSampleInterval: TimeInterval {
+    public var desiredSampleInterval: TimeInterval {
         get {
             return Double(randomForestGetDesiredSamplingInterval(_ptr))
         }
     }
     
-    var desiredSessionDuration: TimeInterval {
+    public var desiredSessionDuration: TimeInterval {
         get {
             return Double(randomForestGetDesiredSessionDuration(_ptr))
         }
     }
     
-    var canPredict: Bool {
+    public var canPredict: Bool {
         return randomForestManagerCanPredict(_ptr)
     }
     
-    init () {
+    public init () {
         guard let configFilePath = Bundle(for: type(of: self)).path(forResource: "ios/config.json", ofType: nil) else {
             return
         }
@@ -44,7 +44,7 @@ class RandomForestManager {
         deleteRandomForestManager(_ptr)
     }
     
-    func startup() {
+    public func startup() {
         guard let modelUIDCString = randomForestGetModelUniqueIdentifier(_ptr) else {
             return
         }
@@ -81,7 +81,7 @@ class RandomForestManager {
         return readings
     }
     
-    func classify(_ prediction: Prediction)
+    public func classify(_ prediction: Prediction)
     {
         let accelVector = self.accelerometerReadings(forAccelerometerReadings: prediction.fetchAccelerometerReadings(timeInterval: self.desiredSessionDuration))
         let confidences = [Float](repeating: 0.0, count: self.classCount)
@@ -96,6 +96,6 @@ class RandomForestManager {
 
         prediction.activityPredictionModelIdentifier = modelIdentifier
         prediction.setPredictedActivities(forClassConfidences: classConfidences)
-        CoreDataManager.shared.saveContext()
+        RouteRecorderDatabaseManager.shared.saveContext()
     }
 }
