@@ -54,7 +54,7 @@ public class RandomForestManager {
             return
         }
         
-        guard modelID.characters.count > 0  else {
+        guard modelID.count > 0  else {
             return
         }
         
